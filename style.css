@@ -236,6 +236,14 @@ body {
   z-index: 5;
 }
 
+/* Force the video down on mobile if YouTube pushes it to the top */
+@media (max-width: 768px) {
+  #yt-player {
+    height: 140%; /* Oversize height so shifting doesn't reveal top borders */
+    top: 65%; /* Shift the entire player down 15% */
+  }
+}
+
 /* ── Player Interaction Blocker ───────────────────────── */
 #player-blocker {
   position: absolute;
