@@ -25,7 +25,7 @@
 
 :root {
   --crt-curve: 12px;
-  --scanline-opacity: 0.15;
+  --scanline-opacity: 0; /* Removed by user request */
   --vignette-strength: 0.8;
   --phosphor-tint: rgba(0, 10, 0, 0.1);
 }
