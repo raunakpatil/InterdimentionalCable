@@ -849,6 +849,7 @@ body {
     padding: 12px 10px;
     gap: 4px;
     border-radius: 16px;
+    transition: opacity 0.3s ease 0s, transform 0.3s ease 0s; /* JS handles the delay on mobile */
   }
 
   .remote-btn {
