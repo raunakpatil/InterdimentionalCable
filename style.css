@@ -237,6 +237,7 @@ body {
   );
   border-radius: var(--crt-curve);
   box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.35);
+  display: none; /* Removed by user request */
 }
 
 /* ── YouTube Player ───────────────────────────────────── */
@@ -298,6 +299,7 @@ body {
   pointer-events: none;
   background: var(--phosphor-tint);
   mix-blend-mode: screen;
+  display: none; /* Removed by user request */
 }
 
 /* ── Screen Flicker ───────────────────────────────────── */
@@ -329,6 +331,7 @@ body {
   /* Create curved glare vignette */
   border-radius: 50%;
   box-shadow: inset 0 0 100px rgba(255, 255, 255, 0.1);
+  display: none; /* Removed by user request */
 }
 
 /* ── Screen Micro-Glitch ──────────────────────────────── */
