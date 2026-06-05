@@ -868,6 +868,11 @@ body {
     right: 20px;
     text-align: right;
   }
+
+  /* Increase static size on mobile as requested */
+  #static-overlay {
+    transform: scale(1.10);
+  }
 }
 
 @media (max-width: 480px) {
