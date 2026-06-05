@@ -927,12 +927,6 @@ body {
   #tv-screen.glitch-3 {
     animation: none !important;
   }
-
-  /* Scale and shift YouTube video specifically on mobile */
-  #yt-player {
-    /* Translating to -45%, -45% achieves the +5%, +5% shift */
-    transform: translate(-45%, -45%);
-  }
 }
 
 @media (max-width: 480px) {
