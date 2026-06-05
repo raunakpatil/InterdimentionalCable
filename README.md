@@ -1,108 +1,71 @@
-# 📺 Intergalactic Cable TV
+# 📺 Interdimensional Cable
 
-**[▶️ Press here to dive into the Multiverse](https://raunakpatil.github.io/InterdimentionalCable/)**
+> An immersive, nostalgic analog TV simulator for exploring curated YouTube rabbit holes.
 
-A free, browser-based broadcast TV simulator inspired by Rick & Morty's interdimensional cable. Flip through bizarre channels of late-night cable from another dimension — no pause, no rewind, just pure chaos.
-
-## 🚀 Quick Start
-
-1. Open `index.html` in a browser (or use a local server)
-2. Click **"TURN ON"** to start
-3. Use arrow keys to change channels
-
-That's it — no build step, no npm, no frameworks.
-
-## 🎮 Controls
-
-| Key | Action |
-|-----|--------|
-| `←` `→` | Change channel |
-| `1`–`8` | Jump to channel |
-| `↑` `↓` | Volume up/down |
-| `M` or `S` | Toggle mute |
-| `P` | Power on/off |
-| Swipe L/R | Change channel (mobile) |
-
-## 📡 Channels
-
-| CH | Name | What You'll See |
-|----|------|-----------------|
-| 1 | THE VOID | Surreal, experimental, glitch art |
-| 2 | FOOD DIMENSION | Bizarre street food, molecular gastronomy |
-| 3 | RETRO WAVE | 80s music, synthwave, VHS aesthetic |
-| 4 | NATURE CHAOS | Extreme weather, deep ocean, volcanoes |
-| 5 | HUMAN FOLLY | Fails, stunts, world record attempts |
-| 6 | SCIENCE ZONE | Physics experiments, space footage |
-| 7 | INFOMERCIAL | Vintage/weird infomercials |
-| 8 | STATIC | White noise, test patterns, glitch loops |
-
-## 🔑 YouTube API Key (Optional)
-
-The app works out of the box with curated fallback videos. To enable live YouTube search:
-
-1. Go to [Google Cloud Console](https://console.cloud.google.com)
-2. Create a new project
-3. Enable **YouTube Data API v3**
-4. Create an API key under Credentials
-5. Paste it in `config.js`:
-   ```javascript
-   const YT_API_KEY = "YOUR_KEY_HERE";
-   ```
-
-Free tier: 10,000 units/day (~99 search batches).
-
-## 📺 Adding Your Own Commercials
-
-1. Upload your video to YouTube (set as **Unlisted**)
-2. Enable **embedding** in YouTube Studio → Advanced Settings
-3. Copy the video ID from the URL
-4. Add to `commercials.js`:
-   ```javascript
-   { id: "YOUR_VIDEO_ID", title: "My Commercial" }
-   ```
-
-Tips: Keep 15–60 seconds. Hard cut endings feel most authentic.
-
-## 🌐 Deploy to GitHub Pages
-
-```bash
-git init
-git add .
-git commit -m "launch intergalactic tv"
-git remote add origin https://github.com/YOUR_USERNAME/intergalactic-tv.git
-git push -u origin main
-```
-
-Then: Settings → Pages → Source: main → / (root)
-
-**Important:** If using an API key, keep the repo **private** or use a proxy.
-
-## 🛠 Tech Stack
-
-- HTML5 + CSS3 + Vanilla JavaScript
-- YouTube IFrame Player API
-- YouTube Data API v3 (optional)
-- Web Audio API (procedural sounds)
-- Google Fonts (VT323, Press Start 2P)
-- Zero dependencies, zero build tools
-
-## 📁 File Structure
-
-```
-├── index.html        Main entry point
-├── style.css         All visual styles
-├── app.js            Application controller
-├── youtube.js        YouTube player engine
-├── channels.js       Channel definitions
-├── commercials.js    Commercial video IDs
-├── effects.js        CRT effects engine
-├── sounds.js         Procedural sound effects
-├── config.js         API key (gitignored)
-├── assets/
-│   └── room-bg.jpg   Room background
-└── README.md         This file
-```
+[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-IntergalacticTV-00C7B7?style=for-the-badge)](https://raunakpatil.github.io/InterdimentionalCable/)
+[![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org)
+[![CSS3](https://img.shields.io/badge/CSS3-Vanilla-1572B6?style=for-the-badge&logo=css3)](https://developer.mozilla.org)
+[![YouTube API](https://img.shields.io/badge/YouTube-IFrame_API-FF0000?style=for-the-badge&logo=youtube)](https://developers.google.com/youtube/iframe_api_reference)
 
 ---
 
-*No pause. No rewind. Just interdimensional cable.*
+> **Most video aggregators are just grids of thumbnails.**
+> This project asks: *what if you were sitting on the floor in 1998, flipping through mysterious analog channels on a glowing CRT television?*
+
+---
+
+## ✨ Features
+
+| Feature | What it does |
+|---------|--------------|
+| 📺 **Authentic CRT Simulation** | Curved glass, phosphor bloom, scanlines, and RGB split effects built purely in CSS. |
+| 📻 **Seamless Channel Surfing** | Custom YouTube API integration with pre-fetching for instant channel switching. |
+| 🎬 **Cinematic Power Sequence** | Glowing boot text, static bursts, audio cues, and a creeping cinematic zoom-in effect. |
+| 📱 **Mobile Optimized** | Flawless responsive layout, gesture support (swipe to change channel), and a tailored UI that fits portrait screens perfectly. |
+| 🎭 **Dynamic Static Engine** | HTML5 Canvas generating randomized 60fps noise, tracking hum, and V-Sync drops, tied together with procedural Web Audio API static. |
+| 🧠 **Intelligent Video Rotation** | "Offline Vault" fallback system automatically preempts YouTube end-screens, keeping the immersion completely unbroken. |
+
+---
+
+## 🛠 Tech stack
+
+| Layer | Technology |
+|-------|-----------|
+| Core Logic | Vanilla JavaScript (ES6+) |
+| Media Player | YouTube IFrame Player API |
+| Aesthetics & UI | Vanilla CSS3 (Custom Variables, Keyframe Animations, Mix-Blend-Modes) |
+| Visual Effects Engine | HTML5 Canvas API |
+| Audio Engine | Web Audio API (Procedural Static Generation) |
+
+---
+
+## 🚀 Setup & Installation
+
+Since the project is built entirely in Vanilla JS and CSS with no build steps or dependencies, getting it running is completely friction-free:
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/raunakpatil/InterdimentionalCable.git
+   ```
+
+2. **Serve locally**
+   You can run it using any simple local server (like Python's HTTP server or VS Code Live Server):
+   ```bash
+   cd InterdimentionalCable
+   python -m http.server 8080
+   ```
+
+3. **Open in browser**
+   Navigate to `http://localhost:8080` to tune in.
+
+---
+
+## 🔧 Architecture Overview
+
+* **`app.js`**: Core state machine handling power sequences, gesture controls (swiping), remote control UI, and global event listeners.
+* **`youtube.js`**: Manages the YouTube IFrame API lifecycle, dynamically loads the `FALLBACK_VAULT`, and continuously monitors playback to prevent YouTube's UI from breaking immersion.
+* **`effects.js`**: Houses the HTML5 Canvas static noise generator and coordinates the `vhs-static-chaos` CSS animations during channel switches.
+* **`sounds.js`**: Synthesizes procedural white noise using the Web Audio API and manages sound effects (button clicks, TV power).
+* **`style.css`**: The true heavy lifter—creating the 3D television bevel, curved CRT glass, scanlines, and all cinematic transitions natively.
+
+---
