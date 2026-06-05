@@ -19,7 +19,7 @@
 ## 📸 Demo
 
 <div align="center">
-  <h3><a href="https://raunakpatil.github.io/InterdimentionalCable/">🚀 Click Here to Experience the Live Simulator 🚀</a></h3>
+  <h3><a href="https://raunakpatil.github.io/InterdimentionalCable/">◀️ Click Here to Watch Interdimentional Tv Live ▶️</a></h3>
 </div>
 
 ### 📻 Ambient Power-Off State
