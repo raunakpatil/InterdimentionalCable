@@ -871,7 +871,7 @@ body {
 
   /* Increase static size on mobile as requested */
   #static-overlay {
-    transform: scale(1.10);
+    transform: scale(1.15);
   }
 }
 
