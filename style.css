@@ -874,7 +874,7 @@ html { scrollbar-width: none; }
   left: 20px;
   z-index: 1000;
   font-family: var(--osd-font), 'VT323', monospace;
-  font-size: 12px;
+  font-size: 18px;
   color: #2bff7a; /* Phosphor green */
   text-shadow: 0 0 6px #2bff7a, 0 0 12px #2bff7a;
   white-space: pre-line;
