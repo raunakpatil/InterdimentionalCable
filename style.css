@@ -637,7 +637,8 @@ body {
   transform: translateY(10px) scale(0.95);
 }
 
-#remote-control:hover {
+#remote-control:hover,
+#remote-control.active {
   opacity: 1;
   transform: translateY(0) scale(1);
   transition: opacity 0.1s ease 0s, transform 0.1s ease 0s; /* Fade in immediately */
@@ -844,7 +845,7 @@ body {
 
   #remote-control {
     bottom: 12px;
-    right: 12px;
+    right: 10%; /* Shifted 10% to the left on mobile */
     padding: 12px 10px;
     gap: 4px;
     border-radius: 16px;

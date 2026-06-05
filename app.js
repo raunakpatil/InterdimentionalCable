@@ -351,6 +351,17 @@ document.addEventListener("DOMContentLoaded", () => {
   if (tvScreen) {
     tvScreen.addEventListener("contextmenu", (e) => e.preventDefault());
   }
+
+  // Mobile: Tap anywhere to toggle remote visibility
+  document.addEventListener("click", (e) => {
+    const remote = document.getElementById("remote-control");
+    if (!remote) return;
+    
+    // Ignore clicks inside the remote itself
+    if (remote.contains(e.target)) return;
+    
+    remote.classList.toggle("active");
+  });
 });
 
 // ── Chroma Key Overlay ───────────────────────────────────
