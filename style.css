@@ -87,8 +87,8 @@ body {
     transform: translate(-45.671%, -47.584%) scale(1);
   }
   #room-container.zoomed {
-    /* No zooming on mobile portrait, the image is already framed perfectly! */
-    transform: translate(-45.671%, -47.584%) scale(1);
+    /* Smooth zoom on mobile portrait */
+    transform: translate(-45.671%, -47.584%) scale(1.25);
   }
   
   #tv-unit {
