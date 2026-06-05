@@ -79,6 +79,40 @@ body {
   }
 }
 
+/* ── Mobile Portrait Layout (Using portrait image) ──────── */
+@media (max-aspect-ratio: 1/1) {
+  #room-container {
+    aspect-ratio: 1536 / 2752; /* Match the portrait image */
+    transform-origin: 45.671% 47.584%;
+    transform: translate(-45.671%, -47.584%) scale(1);
+  }
+  #room-container.zoomed {
+    /* No zooming on mobile portrait, the image is already framed perfectly! */
+    transform: translate(-45.671%, -47.584%) scale(1);
+  }
+  
+  #tv-unit {
+    left: 45.671%;
+    top: 47.584%;
+    width: 50.977%;
+    height: 35.211%;
+  }
+
+  /* Hide the pre-rendered landscape TV-off background since we don't have a portrait version. The black TV hole looks perfect anyway. */
+  #tv-off-bg {
+    display: none !important;
+  }
+
+  /* Center the ambient room glow on the new TV position */
+  #room-bg::after {
+    background: radial-gradient(
+      ellipse at 45.671% 47.584%,
+      rgba(0, 50, 150, 0.4) 0%,
+      rgba(0, 0, 0, 0) 65%
+    );
+  }
+}
+
 /* ── Room Background (Base) ───────────────────────────── */
 #room-bg {
   position: absolute;

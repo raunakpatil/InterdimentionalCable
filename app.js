@@ -359,9 +359,11 @@ function initChromaKey() {
   if (!canvas) return;
   const ctx = canvas.getContext('2d', { willReadFrequently: true });
   
+  const isPortrait = window.matchMedia("(max-aspect-ratio: 1/1)").matches;
   const img = new Image();
-  img.src = 'assets/room-green.jpg';
-  img.crossOrigin = "Anonymous"; // Just in case
+  img.crossOrigin = "Anonymous";
+  img.src = isPortrait ? "assets/room-mobile-green.jpg" : "assets/room-green.jpg";
+
   img.onload = () => {
     canvas.width = img.width;
     canvas.height = img.height;
