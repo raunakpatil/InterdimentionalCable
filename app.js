@@ -353,14 +353,33 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Mobile: Tap anywhere to toggle remote visibility
+  let remoteTimeout;
   document.addEventListener("click", (e) => {
     const remote = document.getElementById("remote-control");
     if (!remote) return;
     
-    // Ignore clicks inside the remote itself
-    if (remote.contains(e.target)) return;
+    // Clear any existing timer when the screen is touched
+    clearTimeout(remoteTimeout);
     
-    remote.classList.toggle("active");
+    // If they clicked inside the remote itself, keep it active and reset the timer
+    if (remote.contains(e.target)) {
+      remote.classList.add("active");
+      remoteTimeout = setTimeout(() => {
+        remote.classList.remove("active");
+      }, 5000);
+      return;
+    }
+    
+    // Tap outside remote: Toggle visibility
+    if (remote.classList.contains("active")) {
+      remote.classList.remove("active");
+    } else {
+      remote.classList.add("active");
+      // Start 5 second fade-out timer
+      remoteTimeout = setTimeout(() => {
+        remote.classList.remove("active");
+      }, 5000);
+    }
   });
 });
 
