@@ -93,7 +93,7 @@ body {
   
   #tv-unit {
     left: 45.671%;
-    top: 52.584%; /* Shifted up 5% from previous */
+    top: 47.584%; /* Shifted up an additional 5% (back to original mathematically perfect center) */
     width: 50.977%;
     height: 35.211%;
   }
