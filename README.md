@@ -1,5 +1,7 @@
 # 📺 Interdimensional Cable
 
+![Banner](docs/TVON.png)
+
 > An immersive, nostalgic analog TV simulator for exploring curated YouTube rabbit holes.
 
 [![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-IntergalacticTV-00C7B7?style=for-the-badge)](https://raunakpatil.github.io/InterdimentionalCable/)
@@ -11,6 +13,19 @@
 
 > **Most video aggregators are just grids of thumbnails.**
 > This project asks: *what if you were sitting on the floor in 1998, flipping through mysterious analog channels on a glowing CRT television?*
+
+---
+
+## 📸 Demo
+
+### 📺 Immersive CRT Experience
+![CRT Experience](docs/TVON.png)
+
+### 📻 Ambient Power-Off State
+![Power Off State](docs/TVOff.png)
+
+### 📲 Mobile Native
+![Mobile View](docs/MobileOn.png)
 
 ---
 
