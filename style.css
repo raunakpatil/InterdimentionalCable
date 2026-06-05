@@ -844,7 +844,7 @@ body {
   }
 
   #remote-control {
-    bottom: 25px; /* Shifted up slightly on mobile */
+    bottom: 5%; /* Shifted up on mobile */
     right: 10%; /* Shifted 10% to the left on mobile */
     padding: 12px 10px;
     gap: 4px;
