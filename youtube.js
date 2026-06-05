@@ -355,6 +355,10 @@ function markVideoPlayed(id) {
 async function playNextVideo() {
   if (!playerReady || !player) return;
 
+  // Mask video transitions and loading times with static
+  showStaticOverlay();
+  startStaticSound();
+
   let validVideoFound = false;
   let fetchAttempts = 0;
   const playedHistory = getPlayedVideos();
