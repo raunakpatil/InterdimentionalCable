@@ -153,12 +153,7 @@ body {
   height: 20.898%;
 }
 
-@media (max-width: 768px) {
-  #tv-unit {
-    /* Shift the video down slightly on mobile devices to compensate for browser UI bars */
-    top: 51.5%;
-  }
-}
+
 
 #tv-shell {
   position: absolute;
@@ -232,11 +227,12 @@ body {
 
 #yt-player {
   position: absolute;
-  /* Slightly oversized to hide YouTube letterbox bars */
-  top: -3%;
-  left: -3%;
-  width: 106%;
-  height: 106%;
+  /* Force a 16:9 aspect ratio so YouTube never adds letterbox bars */
+  width: 132%;
+  height: 100%;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   z-index: 5;
 }
 
