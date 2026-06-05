@@ -2,7 +2,7 @@
 
 ![Banner](docs/banner.jpeg)
 
-> An immersive, nostalgic analog TV simulator for exploring curated YouTube rabbit holes.
+> An immersive, nostalgic analog TV simulator for surfing a chaotic, totally randomized abyss of YouTube videos.
 
 [![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-IntergalacticTV-00C7B7?style=for-the-badge)](https://raunakpatil.github.io/InterdimentionalCable/)
 [![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org)
@@ -11,8 +11,8 @@
 
 ---
 
-> **Most video aggregators are just grids of thumbnails.**
-> This project asks: *what if you were sitting on the floor in 1998, flipping through mysterious analog channels on a glowing CRT television?*
+> **Inspired by the legendary *Rick and Morty* episode, this project completely rejects algorithms and curation.**
+> Instead of a predictable grid of thumbnails, it throws you into a randomized multiverse of weird, obscure, and chaotic YouTube broadcasts. It asks the question: *what if you were sitting on the floor in an alternate dimension, endlessly flipping through unpredictable analog channels on a glowing CRT television?*
 
 ---
 
@@ -24,11 +24,11 @@
 ### 📺 Immersive CRT Experience
 ![CRT Experience](docs/TVON.png)
 
-### 📱 Mobile Power-Off State
-![Mobile Off State](docs/Mobileoff.png)
-
-### 📲 Mobile Native Experience
-![Mobile View](docs/MobileOn.png)
+### 📲 Mobile Native Experience (Power Off & On)
+<p align="center">
+  <img src="docs/Mobileoff.png" width="48%" alt="Mobile Off State">
+  <img src="docs/MobileOn.png" width="48%" alt="Mobile View">
+</p>
 
 ---
 
