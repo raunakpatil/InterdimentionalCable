@@ -153,6 +153,13 @@ body {
   height: 20.898%;
 }
 
+@media (max-width: 768px) {
+  #tv-unit {
+    /* Shift the video down slightly on mobile devices to compensate for browser UI bars */
+    top: 51.5%;
+  }
+}
+
 #tv-shell {
   position: absolute;
   inset: 0;
