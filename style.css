@@ -61,15 +61,22 @@ body {
   aspect-ratio: 16 / 9;
   /* Origin centered perfectly on the TV screen (51.5% left, 50% top) */
   transform-origin: 51.5% 50%;
-  transform: translate(-50%, -50%) scale(1); /* Force GPU acceleration & center */
+  transform: translate(-51.5%, -50%) scale(1); /* Center the TV perfectly in the viewport */
   transition: transform 1.5s ease-out; /* Fast zoom-out when TV turns off */
   will-change: transform;
   z-index: 1;
 }
 
 #room-container.zoomed {
-  transform: translate(-50%, -50%) scale(1.7); /* Zoom in 70% when TV is on for a tighter view */
+  transform: translate(-51.5%, -50%) scale(1.7); /* Zoom in 70% when TV is on for a tighter view */
   transition: transform 4s ease-in-out; /* Slow, creeping cinematic zoom when turning on */
+}
+
+/* ── Mobile / Portrait Adjustments ──────────────────────── */
+@media (max-aspect-ratio: 4/3) {
+  #room-container.zoomed {
+    transform: translate(-51.5%, -50%) scale(1.35); /* Reduce zoom so TV fits inside narrow phone screens */
+  }
 }
 
 /* ── Room Background (Base) ───────────────────────────── */
