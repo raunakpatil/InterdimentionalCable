@@ -1,6 +1,6 @@
 # 📺 Intergalactic Cable TV
 
-**[📺 Hook up your Multiversal Cable Box and start watching](https://raunakpatil.github.io/InterdimentionalCable/)**
+**[▶️ Press here to dive into the Multiverse](https://raunakpatil.github.io/InterdimentionalCable/)**
 
 A free, browser-based broadcast TV simulator inspired by Rick & Morty's interdimensional cable. Flip through bizarre channels of late-night cable from another dimension — no pause, no rewind, just pure chaos.
 
