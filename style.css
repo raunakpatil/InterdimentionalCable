@@ -850,6 +850,14 @@ body {
     width: 46px;
     height: 38px;
   }
+
+  #boot-text {
+    bottom: auto !important;
+    left: auto !important;
+    top: 20px;
+    right: 20px;
+    text-align: right;
+  }
 }
 
 @media (max-width: 480px) {
