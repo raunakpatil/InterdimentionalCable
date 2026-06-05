@@ -913,7 +913,15 @@ body {
   /* Increase static size on mobile as requested (using inset to prevent animation transform conflict) */
   #static-overlay {
     inset: -25%;
-    transform: none;
+  }
+
+  /* Disable all visual effects on mobile to keep it clean */
+  #static-overlay.active,
+  .vhs-lock,
+  #tv-screen.glitch-1,
+  #tv-screen.glitch-2,
+  #tv-screen.glitch-3 {
+    animation: none !important;
   }
 
   /* Scale and shift YouTube video specifically on mobile */

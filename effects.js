@@ -34,6 +34,11 @@ function generateStatic(canvas) {
 
   ctx.putImageData(imageData, 0, 0);
 
+  // Disable extra visual effects on mobile
+  if (window.innerWidth <= 768) {
+    return;
+  }
+
   // 2. Old-school TV V-sync loss (rolling horizontal bands)
   const time = Date.now() / 1000;
   ctx.globalCompositeOperation = "overlay";
