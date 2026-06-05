@@ -19,6 +19,7 @@ let videoQueue = [];
 let isPlayingCommercial = false;
 let playerReady = false;
 let lastCommercialIndex = -1;
+let playbackMonitor = null;
 
 // ── Initialize YouTube IFrame API ────────────────────────
 function initYouTubePlayer() {
@@ -81,6 +82,11 @@ function onPlayerStateChange(event) {
     return;
   }
 
+  if (playbackMonitor) {
+    clearInterval(playbackMonitor);
+    playbackMonitor = null;
+  }
+
   if (event.data === YT.PlayerState.ENDED) {
     isPlayingCommercial = false;
     hideCommercialBug();
@@ -132,6 +138,22 @@ function onPlayerStateChange(event) {
   }
 
   if (event.data === YT.PlayerState.PLAYING) {
+    // Start monitoring playback to cut the video right before the end
+    playbackMonitor = setInterval(() => {
+      if (player && typeof player.getDuration === "function" && typeof player.getCurrentTime === "function") {
+        const duration = player.getDuration();
+        const currentTime = player.getCurrentTime();
+        // Cut it off 1.5 seconds before it fully ends to prevent YouTube's suggestion grid
+        if (duration > 0 && (duration - currentTime) <= 1.5) {
+          clearInterval(playbackMonitor);
+          playbackMonitor = null;
+          isPlayingCommercial = false;
+          hideCommercialBug();
+          playNextVideo();
+        }
+      }
+    }, 500);
+
     // Video started, wait 4 seconds before clearing static and unmuting to hide YT UI
     setTimeout(() => {
       if (typeof isPoweredOn !== "undefined" && !isPoweredOn) return; // Abort if TV is turned off during the wait
