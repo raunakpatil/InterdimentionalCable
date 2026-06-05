@@ -166,6 +166,8 @@ body {
 #tv-screen {
   position: absolute;
   inset: 0; /* Fills the tv-unit completely, since the canvas masks it */
+  width: 100%;
+  height: 100%;
   background: #000;
   overflow: hidden;
   border-radius: var(--crt-curve);
@@ -209,6 +211,11 @@ body {
 #tv-content {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transform-origin: center center;
 }
 
@@ -226,23 +233,15 @@ body {
 }
 
 #yt-player {
-  position: absolute;
+  position: relative;
   /* Force a 16:9 aspect ratio so YouTube never adds letterbox bars */
   width: 132%;
   height: 100%;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
+  flex-shrink: 0;
   z-index: 5;
 }
 
-/* Force the video down on mobile if YouTube pushes it to the top */
-@media (max-width: 768px) {
-  #yt-player {
-    height: 140%; /* Oversize height so shifting doesn't reveal top borders */
-    top: 60%; /* Shift adjusted to user's perfect visual match */
-  }
-}
+
 
 /* ── Player Interaction Blocker ───────────────────────── */
 #player-blocker {
