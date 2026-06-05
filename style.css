@@ -874,8 +874,8 @@ body {
 
   /* Shift OSD inward on mobile so it doesn't get clipped by the curved CRT corners */
   #channel-osd {
-    top: 35px;
-    right: 40px;
+    top: 15%;
+    right: 25%;
   }
 
   /* Increase static size on mobile as requested (using inset to prevent animation transform conflict) */
