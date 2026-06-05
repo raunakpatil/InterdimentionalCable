@@ -18,6 +18,10 @@
 
 ## 📸 Demo
 
+<div align="center">
+  <h3><a href="https://raunakpatil.github.io/InterdimentionalCable/">🚀 Click Here to Experience the Live Simulator 🚀</a></h3>
+</div>
+
 ### 📻 Ambient Power-Off State
 ![Power Off State](docs/TVOff.png)
 
