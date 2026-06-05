@@ -54,11 +54,9 @@ body {
   position: fixed;
   left: 50%;
   top: 50%;
-  width: auto;
-  height: auto;
-  min-width: 100vw;
-  min-height: 100vh;
-  aspect-ratio: 2752 / 1536; /* Exact match to the source images to prevent drifting */
+  width: max(100vw, 100vh * (2752 / 1536));
+  height: max(100vh, 100vw * (1536 / 2752));
+  /* Exact mathematical constraint to prevent aspect-ratio drifting */
   /* Origin centered perfectly on the TV screen (51.5% left, 50% top) */
   transform-origin: 51.5% 50%;
   transform: translate(-51.5%, -50%) scale(1); /* Center the TV perfectly in the viewport */
@@ -82,7 +80,8 @@ body {
 /* ── Mobile Portrait Layout (Using portrait image) ──────── */
 @media (max-aspect-ratio: 1/1) {
   #room-container {
-    aspect-ratio: 1536 / 2752; /* Match the portrait image */
+    width: max(100vw, 100vh * (1536 / 2752));
+    height: max(100vh, 100vw * (2752 / 1536));
     transform-origin: 45.671% 47.584%;
     transform: translate(-45.671%, -47.584%) scale(1);
   }
