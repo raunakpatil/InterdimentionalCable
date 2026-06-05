@@ -1,5 +1,7 @@
 # 📺 Intergalactic Cable TV
 
+**[▶️ Watch Live on GitHub Pages](https://raunakpatil.github.io/InterdimentionalCable/)**
+
 A free, browser-based broadcast TV simulator inspired by Rick & Morty's interdimensional cable. Flip through bizarre channels of late-night cable from another dimension — no pause, no rewind, just pure chaos.
 
 ## 🚀 Quick Start
