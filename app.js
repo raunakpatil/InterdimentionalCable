@@ -15,6 +15,7 @@ let appState = "powered_off"; // splash | powered_on | powered_off
 function powerOn() {
   appState = "powered_on";
   isPoweredOn = true;
+  document.body.classList.add("tv-on");
 
   // Initialize audio context on first user gesture
   if (typeof initAudio === 'function') initAudio();
@@ -60,6 +61,7 @@ function powerOn() {
 function powerOff() {
   appState = "powered_off";
   isPoweredOn = false;
+  document.body.classList.remove("tv-on");
 
   playSound("tv-off");
   stopStaticSound();

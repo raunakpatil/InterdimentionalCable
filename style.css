@@ -856,6 +856,12 @@ body {
     transition: opacity 0.3s ease 0s, transform 0.3s ease 0s; /* JS handles the delay on mobile */
   }
 
+  /* Fade out completely on mobile when TV is running, until user taps screen */
+  body.tv-on #remote-control:not(.active) {
+    opacity: 0;
+    pointer-events: none;
+  }
+
   .remote-btn {
     width: 38px;
     height: 34px;
