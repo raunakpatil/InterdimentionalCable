@@ -275,7 +275,7 @@ body {
 /* Shift video right and down, and scale by 17% on desktop as requested */
 @media (min-width: 769px) {
   #yt-player {
-    transform: translate(2%, 10%) scale(1.17);
+    transform: translate(2%, 4%) scale(1.17);
   }
 }
 
