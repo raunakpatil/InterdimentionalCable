@@ -926,7 +926,7 @@ body {
 
   /* Scale and shift YouTube video specifically on mobile */
   #yt-player {
-    transform: translate(10%, 5%) scale(1.20);
+    transform: translate(5%, 5%) scale(1.20);
   }
 }
 
