@@ -303,6 +303,20 @@ function typeBootSequence() {
       // Done typing. Wait 3 seconds, then fade out
       setTimeout(() => {
         bootEl.style.opacity = "0";
+        
+        // Mobile-only: Show swipe hint 5 seconds after boot text disappears
+        setTimeout(() => {
+          if (window.innerWidth <= 768) {
+            const hintEl = document.getElementById("mobile-swipe-hint");
+            if (hintEl) {
+              hintEl.classList.add("visible");
+              setTimeout(() => {
+                hintEl.classList.remove("visible");
+              }, 5000);
+            }
+          }
+        }, 5000);
+        
       }, 3000);
       return;
     }
