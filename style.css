@@ -272,10 +272,10 @@ body {
   z-index: 5;
 }
 
-/* Shift video right and down, and scale by 10% on desktop as requested */
+/* Shift video right and down, and scale by 17% on desktop as requested */
 @media (min-width: 769px) {
   #yt-player {
-    transform: translate(5%, 10%) scale(1.10);
+    transform: translate(5%, 10%) scale(1.17);
   }
 }
 
