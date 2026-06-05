@@ -868,7 +868,7 @@ body {
     top: 20px;
     right: 20px;
     text-align: right;
-    font-size: 12px !important; /* Slightly increased font size for mobile */
+    font-size: 16px !important; /* Increased font size for mobile */
   }
 
   /* Increase static size on mobile as requested */
