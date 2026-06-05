@@ -72,10 +72,10 @@ function showStaticOverlay() {
   const overlay = document.getElementById("static-overlay");
   const canvas = document.getElementById("static-canvas");
 
-  // Size canvas to match screen
+  // Size canvas to exactly match screen pixel dimensions
   const rect = overlay.parentElement.getBoundingClientRect();
-  canvas.width = Math.floor(rect.width / 2);  // Half-res for performance + authentic graininess
-  canvas.height = Math.floor(rect.height / 2);
+  canvas.width = Math.floor(rect.width);
+  canvas.height = Math.floor(rect.height);
 
   overlay.classList.add("active");
   startStaticAnimation(canvas);
