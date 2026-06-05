@@ -240,7 +240,7 @@ body {
 @media (max-width: 768px) {
   #yt-player {
     height: 140%; /* Oversize height so shifting doesn't reveal top borders */
-    top: 65%; /* Shift the entire player down 15% */
+    top: 60%; /* Shift adjusted to user's perfect visual match */
   }
 }
 
