@@ -274,7 +274,7 @@ body {
 /* Shift video right and down on desktop as requested */
 @media (min-width: 769px) {
   #yt-player {
-    transform: translate(5%, 5%);
+    transform: translate(5%, 10%);
   }
 }
 
