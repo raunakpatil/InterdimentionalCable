@@ -875,6 +875,11 @@ body {
   #static-overlay {
     transform: scale(1.15);
   }
+
+  /* Scale and shift YouTube video specifically on mobile */
+  #yt-player {
+    transform: translate(10%, 0) scale(1.10);
+  }
 }
 
 @media (max-width: 480px) {
