@@ -872,6 +872,12 @@ body {
     font-size: 16px !important; /* Increased font size for mobile */
   }
 
+  /* Shift OSD inward on mobile so it doesn't get clipped by the curved CRT corners */
+  #channel-osd {
+    top: 25px;
+    right: 25px;
+  }
+
   /* Increase static size on mobile as requested (using inset to prevent animation transform conflict) */
   #static-overlay {
     inset: -25%;
