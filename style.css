@@ -110,7 +110,6 @@ body {
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
   z-index: 50; /* Above TV, below remote/splash */
   pointer-events: none;
   filter: brightness(0.78) saturate(1.05); /* Match base room brightness */
@@ -130,7 +129,6 @@ body {
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
   z-index: 60; /* Above the canvas and TV unit */
   opacity: 1;
   pointer-events: none;
@@ -211,11 +209,6 @@ body {
 #tv-content {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   transform-origin: center center;
 }
 
@@ -233,11 +226,14 @@ body {
 }
 
 #yt-player {
-  position: relative;
-  /* Force a 16:9 aspect ratio so YouTube never adds letterbox bars */
-  width: 132%;
-  height: 100%;
-  flex-shrink: 0;
+  position: absolute;
+  /* Use absolute offsets instead of width/height percentages to bypass iOS Safari height collapse bugs */
+  top: 0;
+  bottom: 0;
+  left: -16%;
+  right: -16%;
+  width: auto;
+  height: auto;
   z-index: 5;
 }
 
@@ -466,8 +462,10 @@ body {
 }
 
 #static-canvas {
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  inset: 0;
+  width: auto;
+  height: auto;
   image-rendering: pixelated;
 }
 
