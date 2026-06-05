@@ -1,6 +1,6 @@
 # 📺 Interdimensional Cable
 
-![Banner](docs/TVON.png)
+![Banner](docs/banner.jpeg)
 
 > An immersive, nostalgic analog TV simulator for exploring curated YouTube rabbit holes.
 
@@ -18,13 +18,16 @@
 
 ## 📸 Demo
 
-### 📺 Immersive CRT Experience
-![CRT Experience](docs/TVON.png)
-
 ### 📻 Ambient Power-Off State
 ![Power Off State](docs/TVOff.png)
 
-### 📲 Mobile Native
+### 📺 Immersive CRT Experience
+![CRT Experience](docs/TVON.png)
+
+### 📱 Mobile Power-Off State
+![Mobile Off State](docs/Mobileoff.png)
+
+### 📲 Mobile Native Experience
 ![Mobile View](docs/MobileOn.png)
 
 ---
