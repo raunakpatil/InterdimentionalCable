@@ -560,8 +560,8 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 10px 8px;
+  gap: 6px;
+  padding: 14px 12px;
   background: var(--remote-bg);
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -586,14 +586,14 @@ body {
 }
 
 .remote-btn {
-  width: 36px;
-  height: 30px;
+  width: 46px;
+  height: 38px;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   background: var(--remote-btn);
   color: rgba(255, 255, 255, 0.85);
   font-family: var(--osd-font);
-  font-size: 14px;
+  font-size: 18px;
   cursor: pointer;
   transition: all 0.15s ease;
   display: flex;
@@ -628,12 +628,13 @@ body {
 }
 
 .remote-label {
-  font-family: var(--ui-font);
-  font-size: 6px;
-  color: rgba(255, 255, 255, 0.35);
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.4);
+  margin-top: 8px;
+  margin-bottom: 2px;
   letter-spacing: 1px;
   text-transform: uppercase;
-  margin: 4px 0 2px;
 }
 
 /* ── Splash Screen ────────────────────────────────────── */
@@ -838,7 +839,7 @@ html { scrollbar-width: none; }
   text-align: center;
   z-index: 2000;
   font-family: var(--ui-font), 'Courier New', Courier, monospace;
-  font-size: 6px;
+  font-size: 10px;
   opacity: 0.25;
   transition: opacity 0.3s ease 3s; /* Wait 3s before fading out */
   pointer-events: none;
