@@ -119,6 +119,7 @@ let staticNoiseGain = null;
 
 function startStaticSound() {
   if (!audioCtx) return;
+  if (typeof isMuted !== "undefined" && isMuted) return;
   stopStaticSound();
 
   const bufferSize = audioCtx.sampleRate * 2;
