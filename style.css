@@ -1,0 +1,899 @@
+/* ══════════════════════════════════════════════════════════
+   INTERGALACTIC CABLE TV — Complete Stylesheet
+   ══════════════════════════════════════════════════════════
+   
+   Layer stack (bottom → top):
+     1. Room background
+     2. TV unit (shell + screen)
+     3. YouTube iframe
+     4. Player blocker (interaction shield)
+     5. Phosphor bloom overlay
+     6. Scanlines + vignette (pseudo-elements)
+     7. Static overlay (canvas)
+     8. Channel OSD / Commercial bug
+     9. Power-off screen
+    10. Remote control panel
+    11. Splash screen
+   ══════════════════════════════════════════════════════════ */
+
+/* ── Reset & Globals ──────────────────────────────────── */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --crt-curve: 12px;
+  --scanline-opacity: 0.15;
+  --vignette-strength: 0.8;
+  --phosphor-tint: rgba(0, 10, 0, 0.1);
+}
+
+body {
+  --osd-font: 'VT323', monospace;
+  --ui-font: 'Press Start 2P', monospace;
+  --glow-cyan: rgba(0, 255, 255, 0.4);
+  --glow-green: rgba(0, 255, 80, 0.3);
+  --remote-bg: rgba(15, 12, 10, 0.92);
+  --remote-btn: rgba(60, 55, 50, 0.9);
+  --remote-btn-hover: rgba(90, 80, 70, 0.95);
+  margin: 0;
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  background: #050403;
+  font-family: var(--osd-font);
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ── Room Zoom Container ────────────────────────────────── */
+#room-container {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  /* Origin centered perfectly on the TV screen (51.5% left, 50% top) */
+  transform-origin: 51.5% 50%;
+  transform: translateZ(0) scale(1); /* Force GPU acceleration */
+  transition: transform 1.5s ease-out; /* Fast zoom-out when TV turns off */
+  will-change: transform;
+  z-index: 1;
+}
+
+#room-container.zoomed {
+  transform: translateZ(0) scale(1.7); /* Zoom in 70% when TV is on for a tighter view */
+  transition: transform 4s ease-in-out; /* Slow, creeping cinematic zoom when turning on */
+}
+
+/* ── Room Background (Base) ───────────────────────────── */
+#room-bg {
+  position: fixed;
+  inset: 0;
+  background: transparent;
+  z-index: 1;
+}
+
+/* Ambient light glow from TV onto room */
+#room-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at 51.5% 50%,
+    rgba(0, 50, 150, 0.4) 0%,
+    rgba(0, 0, 0, 0) 65%
+  );
+  z-index: 2;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+/* ── Room Overlay Canvas (Chroma Keyed) ────────────────── */
+#room-overlay-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  z-index: 50; /* Above TV, below remote/splash */
+  pointer-events: none;
+  filter: brightness(0.78) saturate(1.05); /* Match base room brightness */
+  transition: filter 1.5s ease-out; /* Fast brighten when TV turns off */
+  will-change: filter;
+  transform: translateZ(0); /* Force GPU rendering for the canvas */
+}
+
+#room-container.zoomed #room-overlay-canvas {
+  filter: brightness(0.2) saturate(1.05); /* Darken the room significantly when zoomed in */
+  transition: filter 4s ease-in-out; /* Slow dimming when TV turns on */
+}
+
+/* ── TV Off Background Scene ──────────────────────────── */
+#tv-off-bg {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  z-index: 60; /* Above the canvas and TV unit */
+  opacity: 1;
+  pointer-events: none;
+  transition: opacity 0.6s ease-in-out;
+}
+
+#tv-off-bg.hidden {
+  opacity: 0;
+}
+
+/* ── TV Unit ──────────────────────────────────────────── */
+#tv-unit {
+  position: fixed;
+  z-index: 10;
+  /* Positioned to sit behind the chroma-keyed hole */
+  left: 51.5%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  /* Sized to match the much smaller hole in newsofa.jpeg */
+  width: 17.5vw;
+}
+
+#tv-shell {
+  position: relative;
+  width: 100%;
+  /* Aspect ratio roughly matching the CRT */
+  padding-bottom: 78%;
+}
+
+/* ── TV Screen Area ───────────────────────────────────── */
+#tv-screen {
+  position: absolute;
+  inset: 0; /* Fills the tv-unit completely, since the canvas masks it */
+  background: #000;
+  overflow: hidden;
+  border-radius: var(--crt-curve);
+  animation: flicker 8s infinite;
+}
+
+/* ── Scanlines (pseudo-element) ───────────────────────── */
+#tv-screen::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 2px,
+    rgba(0, 0, 0, var(--scanline-opacity)) 2px,
+    rgba(0, 0, 0, var(--scanline-opacity)) 4px
+  );
+  mix-blend-mode: multiply;
+}
+
+/* ── Vignette + Screen Curve ──────────────────────────── */
+#tv-screen::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 21;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 55%,
+    rgba(0, 0, 0, var(--vignette-strength)) 100%
+  );
+  border-radius: var(--crt-curve);
+  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.35);
+}
+
+/* ── YouTube Player ───────────────────────────────────── */
+#tv-content {
+  position: absolute;
+  inset: 0;
+  transform-origin: center center;
+}
+
+#tv-screen.powering-off,
+#tv-content.powering-off {
+  animation: powerOffCRT 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards !important;
+  pointer-events: none;
+}
+
+@keyframes powerOffCRT {
+  0%   { transform: scale(1, 1); filter: brightness(1); opacity: 1; }
+  50%  { transform: scale(1, 0.005); filter: brightness(4); opacity: 1; }
+  80%  { transform: scale(0.005, 0.005); filter: brightness(6); opacity: 1; }
+  100% { transform: scale(0, 0); filter: brightness(0); opacity: 0; }
+}
+
+#yt-player {
+  position: absolute;
+  /* Slightly oversized to hide YouTube letterbox bars */
+  top: -3%;
+  left: -3%;
+  width: 106%;
+  height: 106%;
+  z-index: 5;
+}
+
+/* ── Player Interaction Blocker ───────────────────────── */
+#player-blocker {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  cursor: none;
+  /* 1% opacity guarantees it catches clicks across all browsers */
+  background: rgba(0, 0, 0, 0.01);
+}
+
+/* ── Phosphor Bloom ───────────────────────────────────── */
+#phosphor-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 22;
+  pointer-events: none;
+  background: var(--phosphor-tint);
+  mix-blend-mode: screen;
+}
+
+/* ── Screen Flicker ───────────────────────────────────── */
+@keyframes flicker {
+  0%   { opacity: 1; }
+  91%  { opacity: 1; }
+  92%  { opacity: 0.96; }
+  93%  { opacity: 1; }
+  97%  { opacity: 1; }
+  98%  { opacity: 0.98; }
+  99%  { opacity: 0.97; }
+  100% { opacity: 1; }
+}
+
+/* ── CRT Glass Reflection ───────────────────────────────── */
+#glass-reflection {
+  position: absolute;
+  inset: -10%;
+  width: 120%;
+  height: 120%;
+  /* Use the dark room image flipped horizontally */
+  background: url('assets/tvoff.jpeg') center / cover;
+  transform: scaleX(-1);
+  opacity: 0.12;
+  pointer-events: none;
+  z-index: 45; /* above video, below osd */
+  mix-blend-mode: screen;
+  filter: blur(8px) contrast(1.5) sepia(0.3);
+  /* Create curved glare vignette */
+  border-radius: 50%;
+  box-shadow: inset 0 0 100px rgba(255, 255, 255, 0.1);
+}
+
+/* ── Screen Micro-Glitch ──────────────────────────────── */
+@keyframes glitchShift {
+  0%   { transform: translate(0, 0) skewX(0deg); }
+  20%  { transform: translate(-3px, 1px) skewX(-0.5deg); }
+  40%  { transform: translate(2px, -1px) skewX(0.3deg); }
+  60%  { transform: translate(-1px, 2px) skewX(-0.2deg); }
+  80%  { transform: translate(3px, 0) skewX(0.5deg); }
+  100% { transform: translate(0, 0) skewX(0deg); }
+}
+
+#tv-screen.glitch #tv-content {
+  animation: glitchShift 0.1s steps(3) 1;
+}
+
+#tv-screen.vhs-lock #tv-content {
+  animation: vhs-tracking 0.7s cubic-bezier(0.25, 1, 0.5, 1) 1, vhs-color-bleed 0.7s cubic-bezier(0.25, 1, 0.5, 1) 1;
+}
+
+/* ── CRT Static Overlay ─────────────────────────────────── */
+#static-overlay {
+  position: absolute;
+  inset: -10%;
+  width: 120%;
+  height: 120%;
+  background: url('assets/static.gif') center / cover;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 6;
+  transition: opacity 0.1s ease;
+}
+
+#static-overlay.active {
+  opacity: 1;
+  /* Extremely violent tearing and brightness strobing while tuning */
+  animation: vhs-static-chaos 0.2s infinite;
+}
+
+@keyframes vhs-static-chaos {
+  0% { transform: skewX(0deg) translateY(0) scale(1.05); filter: brightness(1); }
+  10% { transform: skewX(-5deg) translateY(2%) scale(1.05); filter: brightness(1.2) contrast(1.3); }
+  20% { transform: skewX(2deg) translateY(-2%) scale(1.05); filter: brightness(0.9); }
+  30% { transform: skewX(-4deg) translateY(4%) scale(1.05); filter: brightness(1.3) contrast(1.5); }
+  40% { transform: skewX(5deg) translateY(-3%) scale(1.05); filter: brightness(1); }
+  50% { transform: skewX(-7deg) translateY(1%) scale(1.05); filter: brightness(0.8) contrast(1.2); }
+  60% { transform: skewX(3deg) translateY(-1%) scale(1.05); filter: brightness(1.1); }
+  70% { transform: skewX(-3deg) translateY(3%) scale(1.05); filter: brightness(1.4) contrast(1.4); }
+  80% { transform: skewX(6deg) translateY(-4%) scale(1.05); filter: brightness(0.9); }
+  90% { transform: skewX(-2deg) translateY(2%) scale(1.05); filter: brightness(1.2); }
+  100% { transform: skewX(0deg) translateY(0) scale(1.05); filter: brightness(1); }
+}
+
+/* ── Advanced VHS Glitches ────────────────────────────── */
+@keyframes vhs-tracking {
+  0% { transform: skewX(0deg) translateY(0); filter: brightness(1); }
+  5% { transform: skewX(3deg) translateY(2px); filter: brightness(1.2) contrast(1.2); }
+  10% { transform: skewX(-2deg) translateY(-2px); filter: brightness(0.8); }
+  15% { transform: skewX(0deg) translateY(0); filter: brightness(1); }
+  100% { transform: skewX(0deg) translateY(0); filter: brightness(1); }
+}
+
+@keyframes vhs-color-bleed {
+  0% { filter: hue-rotate(0deg) saturate(1); }
+  10% { filter: hue-rotate(90deg) saturate(2) contrast(1.5); }
+  20% { filter: hue-rotate(-90deg) saturate(0.5); }
+  30% { filter: hue-rotate(0deg) saturate(1); }
+  100% { filter: hue-rotate(0deg) saturate(1); }
+}
+
+.glitch-tracking {
+  animation: vhs-tracking 0.6s ease-in-out infinite !important;
+}
+
+.glitch-color {
+  animation: vhs-color-bleed 0.4s ease-in-out infinite !important;
+}
+
+/* ── Settings Modal ─────────────────────────────────────── */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 100, 0.85); /* Authentic VCR blue background */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  backdrop-filter: blur(5px);
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.modal.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.modal-content {
+  background: #0000aa;
+  border: 4px solid #fff;
+  padding: 30px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 0 20px rgba(0,0,0,0.8);
+  color: #fff;
+  text-shadow: 2px 2px 0 #000;
+}
+
+.modal-content h2 {
+  margin-top: 0;
+  margin-bottom: 5px;
+  font-size: 24px;
+  text-align: center;
+}
+
+.modal-subtitle {
+  text-align: center;
+  margin-bottom: 25px;
+  font-size: 14px;
+  color: #aaddff;
+}
+
+.channel-input-row {
+  display: flex;
+  margin-bottom: 15px;
+  align-items: center;
+}
+
+.channel-input-row label {
+  width: 60px;
+  font-weight: bold;
+}
+
+.channel-input-row input {
+  flex-grow: 1;
+  background: #000066;
+  border: 2px inset #fff;
+  color: #fff;
+  padding: 8px;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.channel-input-row input:focus {
+  background: #0000cc;
+  outline: none;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+}
+
+.modal-actions button {
+  background: #fff;
+  color: #0000aa;
+  border: 2px outset #fff;
+  padding: 10px 20px;
+  font-family: inherit;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.modal-actions button:active {
+  border-style: inset;
+}
+
+#static-canvas {
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
+
+/* ── Channel OSD ──────────────────────────────────────── */
+#channel-osd {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  z-index: 40;
+  font-family: var(--osd-font);
+  color: rgba(255, 255, 255, 0.92);
+  text-shadow:
+    0 0 8px rgba(255, 255, 255, 0.5),
+    0 0 20px rgba(0, 200, 255, 0.2);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  text-align: right;
+}
+
+#channel-osd.visible {
+  opacity: 1;
+}
+
+.osd-channel-num {
+  font-size: clamp(14px, 2.5vw, 24px);
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+.osd-channel-name {
+  font-size: clamp(8px, 1.2vw, 12px);
+  opacity: 0.7;
+  margin-top: 2px;
+  letter-spacing: 1px;
+}
+
+.osd-volume-bar {
+  font-size: clamp(10px, 1.5vw, 14px);
+  letter-spacing: 1px;
+  margin-top: 4px;
+}
+
+/* ── Commercial Bug ───────────────────────────────────── */
+#commercial-bug {
+  position: absolute;
+  top: 10px;
+  left: 14px;
+  z-index: 40;
+  font-family: var(--ui-font);
+  font-size: clamp(8px, 1vw, 12px);
+  color: rgba(255, 255, 100, 0.85);
+  background: rgba(0, 0, 0, 0.5);
+  padding: 3px 8px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 100, 0.3);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+
+#commercial-bug.visible {
+  opacity: 1;
+}
+
+/* ── Power Off Screen ─────────────────────────────────── */
+#power-off-screen {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+#power-off-screen.active {
+  opacity: 1;
+}
+
+/* ── Power Off Animation ──────────────────────────────── */
+@keyframes powerOff {
+  0%   { transform: scaleY(1) scaleX(1); opacity: 1; filter: brightness(1); }
+  30%  { transform: scaleY(1) scaleX(1); opacity: 1; filter: brightness(1.5); }
+  50%  { transform: scaleY(0.008) scaleX(1); opacity: 1; filter: brightness(2); }
+  70%  { transform: scaleY(0.008) scaleX(0.3); opacity: 0.8; filter: brightness(2); }
+  100% { transform: scaleY(0) scaleX(0); opacity: 0; filter: brightness(0); }
+}
+
+#tv-content.powering-off {
+  animation: powerOff 0.6s ease-in forwards;
+}
+
+/* ── Power On Animation ───────────────────────────────── */
+@keyframes powerOn {
+  0%   { transform: scaleY(0) scaleX(0); opacity: 0; filter: brightness(0); }
+  20%  { transform: scaleY(0.008) scaleX(0.3); opacity: 0.8; filter: brightness(2); }
+  50%  { transform: scaleY(0.008) scaleX(1); opacity: 1; filter: brightness(2); }
+  80%  { transform: scaleY(1) scaleX(1); opacity: 1; filter: brightness(1.3); }
+  100% { transform: scaleY(1) scaleX(1); opacity: 1; filter: brightness(1); }
+}
+
+#tv-content.powering-on {
+  animation: powerOn 0.5s ease-out forwards;
+}
+
+/* ── On-Screen Remote Control ─────────────────────────── */
+#remote-control {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 8px;
+  background: var(--remote-bg);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  opacity: 0.15;
+  transition: opacity 0.3s ease 3s, transform 0.3s ease 3s; /* Wait 3s before fading out */
+  transform: translateY(10px) scale(0.95);
+}
+
+#remote-control:hover {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition: opacity 0.1s ease 0s, transform 0.1s ease 0s; /* Fade in immediately */
+}
+
+.remote-row {
+  display: flex;
+  gap: 4px;
+}
+
+.remote-btn {
+  width: 36px;
+  height: 30px;
+  border: none;
+  border-radius: 6px;
+  background: var(--remote-btn);
+  color: rgba(255, 255, 255, 0.85);
+  font-family: var(--osd-font);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.remote-btn:hover {
+  background: var(--remote-btn-hover);
+  transform: scale(1.05);
+  box-shadow: 0 0 12px rgba(0, 200, 255, 0.15);
+}
+
+.remote-btn:active {
+  transform: scale(0.95);
+  background: rgba(100, 90, 80, 0.9);
+}
+
+#btn-power {
+  background: rgba(180, 40, 40, 0.7);
+  width: 40px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+
+#btn-power:hover {
+  background: rgba(220, 50, 50, 0.85);
+  box-shadow: 0 0 16px rgba(255, 50, 50, 0.3);
+}
+
+.remote-label {
+  font-family: var(--ui-font);
+  font-size: 6px;
+  color: rgba(255, 255, 255, 0.35);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin: 4px 0 2px;
+}
+
+/* ── Splash Screen ────────────────────────────────────── */
+#splash-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(5, 10, 20, 0.92) 0%,
+    rgba(2, 3, 5, 0.98) 100%
+  );
+  backdrop-filter: blur(8px);
+  transition: opacity 0.6s ease;
+}
+
+#splash-screen.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.splash-title {
+  font-family: var(--ui-font);
+  font-size: clamp(12px, 2.5vw, 28px);
+  color: rgba(0, 255, 200, 0.9);
+  text-shadow:
+    0 0 20px rgba(0, 255, 200, 0.4),
+    0 0 60px rgba(0, 255, 200, 0.15);
+  text-align: center;
+  line-height: 1.8;
+  margin-bottom: 40px;
+  letter-spacing: 3px;
+}
+
+.splash-subtitle {
+  font-family: var(--osd-font);
+  font-size: clamp(12px, 1.8vw, 20px);
+  color: rgba(255, 255, 255, 0.4);
+  margin-bottom: 50px;
+  letter-spacing: 2px;
+}
+
+#splash-btn {
+  font-family: var(--ui-font);
+  font-size: clamp(10px, 1.5vw, 16px);
+  color: #fff;
+  background: transparent;
+  border: 2px solid rgba(0, 255, 200, 0.5);
+  padding: 16px 40px;
+  border-radius: 6px;
+  cursor: pointer;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  animation: splashPulse 2s ease-in-out infinite;
+  position: relative;
+  overflow: hidden;
+}
+
+#splash-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 255, 200, 0.1) 0%,
+    rgba(0, 200, 255, 0.05) 100%
+  );
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+#splash-btn:hover {
+  border-color: rgba(0, 255, 200, 0.9);
+  box-shadow:
+    0 0 30px rgba(0, 255, 200, 0.2),
+    inset 0 0 30px rgba(0, 255, 200, 0.05);
+  transform: scale(1.05);
+}
+
+#splash-btn:hover::before {
+  opacity: 1;
+}
+
+#splash-btn:active {
+  transform: scale(0.98);
+}
+
+@keyframes splashPulse {
+  0%, 100% { box-shadow: 0 0 10px rgba(0, 255, 200, 0.1); }
+  50%      { box-shadow: 0 0 25px rgba(0, 255, 200, 0.25); }
+}
+
+.splash-controls {
+  margin-top: 50px;
+  font-family: var(--osd-font);
+  font-size: clamp(10px, 1.2vw, 14px);
+  color: rgba(255, 255, 255, 0.25);
+  text-align: center;
+  line-height: 2;
+  letter-spacing: 1px;
+}
+
+.splash-controls kbd {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-family: var(--osd-font);
+  font-size: inherit;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0 2px;
+}
+
+/* ── Ambient Noise Lines (decorative) ─────────────────── */
+.noise-line {
+  position: absolute;
+  width: 100%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.03);
+  z-index: 2;
+  pointer-events: none;
+  animation: noiseLine 10s linear infinite;
+}
+
+@keyframes noiseLine {
+  0%   { transform: translateY(-100vh); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateY(100vh); opacity: 0; }
+}
+
+/* ── Responsive ───────────────────────────────────────── */
+@media (max-width: 768px) {
+  #tv-unit {
+    width: clamp(200px, 55vw, 400px);
+    top: 38%;
+  }
+
+  #remote-control {
+    bottom: 12px;
+    right: 12px;
+    padding: 12px 10px;
+    gap: 4px;
+    border-radius: 16px;
+  }
+
+  .remote-btn {
+    width: 38px;
+    height: 34px;
+    font-size: 14px;
+  }
+
+  #btn-power {
+    width: 46px;
+    height: 38px;
+  }
+}
+
+@media (max-width: 480px) {
+  #tv-unit {
+    width: clamp(180px, 70vw, 350px);
+    top: 36%;
+  }
+
+  .splash-controls {
+    display: none; /* Hide keyboard hints on mobile */
+  }
+}
+
+/* ── Scrollbar Hidden ─────────────────────────────────── */
+::-webkit-scrollbar { display: none; }
+html { scrollbar-width: none; }
+
+/* ── Remote LED ───────────────────────────────────────── */
+#remote-led {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #400;
+  margin-bottom: 2px;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.8);
+  transition: background 0.05s, box-shadow 0.05s;
+}
+
+#remote-led.active {
+  background: #f00;
+  box-shadow: 0 0 8px #f00, 0 0 12px #f00;
+}
+
+/* ── Creator Footer ───────────────────────────────────── */
+#creator-footer {
+  position: fixed;
+  bottom: 12px;
+  left: 0;
+  width: 100vw;
+  text-align: center;
+  z-index: 2000;
+  font-family: var(--ui-font), 'Courier New', Courier, monospace;
+  font-size: 6px;
+  opacity: 0.25;
+  transition: opacity 0.3s ease 3s; /* Wait 3s before fading out */
+  pointer-events: none;
+  padding-left: 15px;
+  box-sizing: border-box;
+}
+
+#room-container:not(.zoomed) ~ #creator-footer {
+  opacity: 1; /* Fully visible when TV is off */
+}
+
+#creator-footer:hover {
+  opacity: 1;
+  transition: opacity 0.1s ease 0s; /* Fade in immediately */
+}
+
+#creator-footer a {
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  pointer-events: auto;
+  text-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.9),
+    0 0 8px rgba(0, 0, 0, 0.9),
+    0 0 16px rgba(0, 0, 0, 0.8);
+  transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+
+/* ── Boot Text ────────────────────────────────────────── */
+#boot-text {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 1000;
+  font-family: var(--osd-font), 'VT323', monospace;
+  font-size: 12px;
+  color: #2bff7a; /* Phosphor green */
+  text-shadow: 0 0 6px #2bff7a, 0 0 12px #2bff7a;
+  white-space: pre-line;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 1.5s ease-out;
+  line-height: 1.4;
+  opacity: 0.8;
+}
+
+.typing-cursor {
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+#creator-footer a:hover {
+  color: #00ffcc;
+  text-shadow: 0 0 10px #00ffcc;
+}

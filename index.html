@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Intergalactic Cable TV</title>
+  <meta name="description" content="A free browser-based broadcast TV simulator. Flip through bizarre channels of interdimensional cable — no pause, no rewind, just pure chaos.">
+  <meta name="theme-color" content="#050403">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+  
+  <!-- Favicon (CRT emoji) -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📺</text></svg>">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!--  ROOM CONTAINER (Used for zooming)                      -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <div id="room-container">
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!--  ROOM BACKGROUND                                       -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div id="room-bg"></div>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!--  THE TV UNIT                                            -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <div id="tv-unit">
+    <div id="tv-shell">
+      <div id="tv-screen">
+
+        <!-- Video content wrapper (animated on power on/off) -->
+        <div id="tv-content">
+          
+          <!-- YouTube player fills this -->
+          <div id="yt-player"></div>
+          
+          <!-- Blocks all clicks/touches on the YouTube player -->
+          <div id="player-blocker"></div>
+          
+        </div>
+        <!-- /tv-content -->
+
+        <!-- CRT effect overlays -->
+        <div id="phosphor-overlay"></div>
+        <div id="glass-reflection"></div>
+
+        <!-- Static noise (canvas, shown during channel switch) -->
+        <div id="static-overlay">
+          <canvas id="static-canvas" width="320" height="240"></canvas>
+        </div>
+
+        <!-- On-screen displays -->
+        <div id="channel-osd">
+          <div class="osd-channel-num">CH 01</div>
+        </div>
+        <div id="commercial-bug">AD</div>
+
+        <!-- Power off black screen -->
+        <div id="power-off-screen" class="active"></div>
+
+      </div>
+      <!-- /tv-screen -->
+    </div>
+    <!-- /tv-shell -->
+  </div>
+  <!-- /tv-unit -->
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!--  TV OFF BACKGROUND (Initial Scene)                      -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <img id="tv-off-bg" src="assets/tvoff.jpeg" alt="TV Off">
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!--  ROOM OVERLAY (Chroma Key Canvas)                       -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <canvas id="room-overlay-canvas"></canvas>
+
+  </div>
+  <!-- /room-container -->
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!--  ON-SCREEN REMOTE CONTROL                               -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <div id="remote-control">
+    <div id="remote-led"></div>
+    <button class="remote-btn" id="btn-power" title="Power (P)">⏻</button>
+    
+    <div class="remote-label">CHANNEL</div>
+    <div class="remote-row">
+      <button class="remote-btn" id="btn-ch-down" title="Channel Down (←)">◀</button>
+      <button class="remote-btn" id="btn-ch-up" title="Channel Up (→)">▶</button>
+    </div>
+
+    <div class="remote-label">VOLUME</div>
+    <div class="remote-row">
+      <button class="remote-btn" id="btn-vol-down" title="Volume Down (↓)">−</button>
+      <button class="remote-btn" id="btn-vol-up" title="Volume Up (↑)">+</button>
+    </div>
+
+    <button class="remote-btn" id="btn-mute" title="Mute (M)" style="margin-top: 6px;">🔇</button>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!--  BOOT SEQUENCE TEXT                                     -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <div id="boot-text"></div>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!--  SCRIPTS (order matters — deps loaded first)            -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <script src="config.js?v=2"></script>
+  <script src="channels.js?v=2"></script>
+  <script src="commercials.js?v=2"></script>
+  <script src="sounds.js?v=2"></script>
+  <script src="effects.js?v=2"></script>
+  <script src="youtube.js?v=2"></script>
+  <script src="app.js?v=2"></script>
+
+  <div id="creator-footer">
+    <a href="https://github.com/raunakpatil" target="_blank">built with ❤️ by raunakpatil</a>
+  </div>
+</body>
+</html>
