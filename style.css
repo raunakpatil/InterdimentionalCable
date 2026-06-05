@@ -262,20 +262,24 @@ body {
 
 #yt-player {
   position: absolute;
-  /* Use absolute offsets instead of width/height percentages to bypass iOS Safari height collapse bugs */
-  top: 0;
-  bottom: 0;
-  left: -16%;
-  right: -16%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   width: auto;
   height: auto;
+  /* Make it significantly larger than the cutout so it bleeds over the edges */
+  min-width: 130%;
+  min-height: 130%;
+  /* Force a strict 16:9 ratio so YouTube never generates black bars internally */
+  aspect-ratio: 16 / 9;
   z-index: 5;
 }
 
-/* Shift video right and down, and scale by 17% on desktop as requested */
+/* Shift video right and down on desktop as requested */
 @media (min-width: 769px) {
   #yt-player {
-    transform: translate(2%, 4%) scale(1.17);
+    /* Since base translation is -50%, translating to -48%, -46% achieves the +2%, +4% shift */
+    transform: translate(-48%, -46%);
   }
 }
 
@@ -926,7 +930,8 @@ body {
 
   /* Scale and shift YouTube video specifically on mobile */
   #yt-player {
-    transform: translate(5%, 5%) scale(1.20);
+    /* Translating to -45%, -45% achieves the +5%, +5% shift */
+    transform: translate(-45%, -45%);
   }
 }
 
