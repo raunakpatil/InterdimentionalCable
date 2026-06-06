@@ -260,7 +260,15 @@ const FALLBACK_VAULT = [
   "PL20x6bmPMsWIgHc4h6Y7SpOVRNEAoNW4X",
   "VKF4DUhmdFQ",
   "PLeCPQtbuJaPtLugP7UijMU-ozdNmkdNFO",
-  "PL7143AF12E03570E2"
+  "PL7143AF12E03570E2",
+  "PLXLT0cAAZyduzk5U5a43xdgrZY6fBCjMN",
+  "PLMRKdK25AuPVjHl9Kdb-gkBy0Cm7Zi2xo",
+  "PLEban9uxoM9FsT4Bk6NBX2A5vJDftpTaP",
+  "PLrMX9ct-uNyOKfDG0WrRd6fQsB21MzorZ",
+  "PLS_gQd8UB-hJQ2jwIM8jO5GZhNGW2y3R7",
+  "PL_cExqxU9ahxDw6KWUC0fSPO4UTJrAjV5",
+  "PL1Vjcsuog4C5XmPDaj5iWn1Adytfd-goP",
+  "PL8HuhQ6MvmEpW2OlcgY3erGGqfvmHkrLM"
 ];
 
 let vaultBag = [];
