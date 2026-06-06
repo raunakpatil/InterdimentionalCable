@@ -246,7 +246,6 @@ const FALLBACK_VAULT = [
   "PL2FeM9uR75cPA-TgxErGB3aWNIB71wg_G",
   "PLz58QJ68R9CTLHNi4N2FnvHyK-7V2lGbG",
   "PL1_uQL4mC3x43QfTui5KsRxVY5mr4IdlD",
-  "PLQN71JwsB-QdGIwSjetCKSizlI33MTraG",
   "PL-NHxGqGGGk96lkKvjvpBKGfIdKE2Izwk",
   "PL-quEdx8WqHlprhjobu4ibR3M5QmO9zPd",
   "PLycMmd-qm8f8G5EP4CL96XrtDiqdqajPf",
