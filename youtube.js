@@ -162,6 +162,14 @@ function onPlayerStateChange(event) {
     }, 2500);
   }
 
+  // If the browser forcefully pauses the video (happens on Instagram webview when unmuted)
+  if (event.data === YT.PlayerState.PAUSED) {
+    if (typeof isPoweredOn !== "undefined" && isPoweredOn) {
+      const tapOverlay = document.getElementById("tap-to-play-overlay");
+      if (tapOverlay) tapOverlay.classList.remove("hidden");
+    }
+  }
+
   if (event.data === YT.PlayerState.PLAYING) {
     clearTimeout(stuckTimer);
     const tapOverlay = document.getElementById("tap-to-play-overlay");
