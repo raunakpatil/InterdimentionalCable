@@ -9,7 +9,7 @@
 //    topics   — YouTube search queries
 // ══════════════════════════════════════════════════════════
 
-const CHANNELS = [
+const BASE_TEMPLATES = [
   {
     id: 1,
     name: "THE VOID",
@@ -130,3 +130,14 @@ const CHANNELS = [
     ]
   }
 ];
+
+const CHANNELS = [];
+for (let i = 1; i <= 999; i++) {
+  const template = BASE_TEMPLATES[(i - 1) % BASE_TEMPLATES.length];
+  CHANNELS.push({
+    id: i,
+    name: i <= 9 ? template.name : `${template.name} ${i}`,
+    type: template.type,
+    topics: template.topics
+  });
+}
