@@ -143,8 +143,8 @@ async function channelSwitchEffect(newChannelId, loadCallback) {
     player.mute();
   }
 
-  // 3. Wait for static to feel authentic
-  await sleep(600);
+  // 3. Wait for static to feel authentic (reduced for snappiness)
+  await sleep(100);
 
   // 4. Show channel number
   showChannelOSD(newChannelId);

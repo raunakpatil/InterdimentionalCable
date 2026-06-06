@@ -154,7 +154,7 @@ function onPlayerStateChange(event) {
       }
     }, 500);
 
-    // Video started, wait 4 seconds before clearing static and unmuting to hide YT UI
+    // Video started, wait 2 seconds before clearing static and unmuting to hide YT UI
     setTimeout(() => {
       if (typeof isPoweredOn !== "undefined" && !isPoweredOn) return; // Abort if TV is turned off during the wait
       hideStaticOverlay();
@@ -171,7 +171,7 @@ function onPlayerStateChange(event) {
         void tvScreen.offsetWidth;
         tvScreen.classList.add("vhs-lock");
       }
-    }, 4000);
+    }, 2000);
   }
 
   if (event.data === YT.PlayerState.BUFFERING) {
