@@ -20,6 +20,7 @@ let isPlayingCommercial = false;
 let playerReady = false;
 let lastCommercialIndex = -1;
 let playbackMonitor = null;
+let stuckTimer = null;
 
 // ── Initialize YouTube IFrame API ────────────────────────
 function initYouTubePlayer() {
@@ -53,6 +54,18 @@ window.onYouTubeIframeAPIReady = function () {
       onError: onPlayerError,
     },
   });
+
+  // Tap to play handler
+  const tapOverlay = document.getElementById("tap-to-play-overlay");
+  if (tapOverlay) {
+    tapOverlay.addEventListener("click", () => {
+      if (player && typeof player.playVideo === "function") {
+        player.unMute();
+        player.playVideo();
+        tapOverlay.classList.add("hidden");
+      }
+    });
+  }
 };
 
 function onPlayerReady() {
@@ -138,9 +151,21 @@ function onPlayerStateChange(event) {
         player.playVideo();
       }
     }, 500);
+
+    // If still stuck after 2.5s (likely strict mobile browser), show TAP TO PLAY overlay
+    clearTimeout(stuckTimer);
+    stuckTimer = setTimeout(() => {
+      if (player && player.getPlayerState() !== YT.PlayerState.PLAYING) {
+        const tapOverlay = document.getElementById("tap-to-play-overlay");
+        if (tapOverlay) tapOverlay.classList.remove("hidden");
+      }
+    }, 2500);
   }
 
   if (event.data === YT.PlayerState.PLAYING) {
+    clearTimeout(stuckTimer);
+    const tapOverlay = document.getElementById("tap-to-play-overlay");
+    if (tapOverlay) tapOverlay.classList.add("hidden");
     // Start monitoring playback to cut the video right before the end
     playbackMonitor = setInterval(() => {
       if (player && typeof player.getDuration === "function" && typeof player.getCurrentTime === "function") {

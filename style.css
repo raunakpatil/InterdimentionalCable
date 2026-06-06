@@ -356,6 +356,32 @@ body {
   animation: vhs-tracking 0.7s cubic-bezier(0.25, 1, 0.5, 1) 1, vhs-color-bleed 0.7s cubic-bezier(0.25, 1, 0.5, 1) 1;
 }
 
+/* ── Tap to Play Overlay ─────────────────────────────────── */
+#tap-to-play-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.8);
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+#tap-to-play-overlay.hidden {
+  display: none !important;
+}
+
+.tap-text {
+  color: #0ff;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 1.5rem;
+  text-align: center;
+  text-shadow: 2px 2px 0 #f0f;
+  animation: blink 1s infinite;
+}
+
 /* ── CRT Static Overlay ─────────────────────────────────── */
 #static-overlay {
   position: absolute;
