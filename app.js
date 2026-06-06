@@ -280,9 +280,13 @@ document.addEventListener("touchend", (e) => {
   const dx = touchStartX - e.changedTouches[0].clientX;
   const dy = touchStartY - e.changedTouches[0].clientY;
 
-  // Only trigger on horizontal swipe (not vertical scroll)
+  // Horizontal swipe
   if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) {
     changeChannel(dx > 0 ? 1 : -1);
+  } 
+  // Vertical swipe (mobile only)
+  else if (window.innerWidth <= 768 && Math.abs(dy) > 60 && Math.abs(dy) > Math.abs(dx)) {
+    changeChannel(dy > 0 ? 1 : -1);
   }
 }, { passive: true });
 
