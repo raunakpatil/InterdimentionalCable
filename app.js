@@ -254,16 +254,53 @@ const KEYBINDINGS = {
   "+": () => adjustVolume(10),
   "=": () => adjustVolume(10),
   "-": () => adjustVolume(-10),
-  1: () => switchToChannel(1),
-  2: () => switchToChannel(2),
-  3: () => switchToChannel(3),
-  4: () => switchToChannel(4),
-  5: () => switchToChannel(5),
-  6: () => switchToChannel(6),
-  7: () => switchToChannel(7),
-  8: () => switchToChannel(8),
-  9: () => switchToChannel(9),
+  0: () => handleNumberInput(0),
+  1: () => handleNumberInput(1),
+  2: () => handleNumberInput(2),
+  3: () => handleNumberInput(3),
+  4: () => handleNumberInput(4),
+  5: () => handleNumberInput(5),
+  6: () => handleNumberInput(6),
+  7: () => handleNumberInput(7),
+  8: () => handleNumberInput(8),
+  9: () => handleNumberInput(9),
 };
+
+let channelInputBuffer = "";
+let channelInputTimeout = null;
+
+function handleNumberInput(num) {
+  if (!isPoweredOn) return;
+  
+  channelInputBuffer += num.toString();
+  
+  // Show what they are typing
+  const osd = document.getElementById("channel-osd");
+  osd.innerHTML = `<div class="osd-channel-num">CH ${channelInputBuffer.padStart(2, "0")}-</div>`;
+  osd.classList.add("visible");
+
+  clearTimeout(channelInputTimeout);
+  
+  // If they typed 3 digits, switch immediately
+  if (channelInputBuffer.length >= 3) {
+    commitChannelInput();
+  } else {
+    // Otherwise wait 1.5s for them to finish typing
+    channelInputTimeout = setTimeout(commitChannelInput, 1500);
+  }
+}
+
+function commitChannelInput() {
+  const num = parseInt(channelInputBuffer, 10);
+  channelInputBuffer = "";
+  if (!isNaN(num) && num >= 1 && num <= CHANNELS.length) {
+    switchToChannel(num);
+  } else {
+    // Invalid channel, just hide OSD
+    const osd = document.getElementById("channel-osd");
+    osd.classList.remove("visible");
+  }
+}
 
 document.addEventListener("keydown", (e) => {
   if (KEYBINDINGS[e.key]) {
