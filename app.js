@@ -88,10 +88,12 @@ function powerOff() {
     
     const tvOffBg = document.getElementById("tv-off-bg");
     if (tvOffBg) tvOffBg.classList.remove("hidden");
-
-    // Soft refresh the page to completely reset the player state
-    location.reload();
   }, 500);
+
+  // Soft refresh the page to completely reset the player state after zoom-out finishes
+  setTimeout(() => {
+    location.reload();
+  }, 2000);
 }
 
 // ── Toggle Power ─────────────────────────────────────────
