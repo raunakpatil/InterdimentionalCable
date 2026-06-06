@@ -666,7 +666,7 @@ body {
     0 8px 32px rgba(0, 0, 0, 0.6),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
-  opacity: 0.15;
+  opacity: 0.6;
   transition: opacity 0.3s ease 3s, transform 0.3s ease 3s; /* Wait 3s before fading out */
   transform: translateY(10px) scale(0.95);
 }
