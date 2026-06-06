@@ -271,6 +271,9 @@ function playFallbackVaultItem() {
   videoQueue = []; // Clear queue so we don't mix modes
   const vaultItem = getFallbackVaultItem();
 
+  // Explicitly mute player before cueing so mobile browsers allow async playVideo()
+  if (player && player.mute) player.mute();
+
   if (vaultItem.startsWith("PL")) {
     isCueingFallbackPlaylist = true;
     player.cuePlaylist({ listType: "playlist", list: vaultItem });

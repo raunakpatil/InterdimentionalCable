@@ -77,10 +77,11 @@ function powerOff() {
   const roomContainer = document.getElementById("room-container");
   if (roomContainer) roomContainer.classList.remove("zoomed");
 
-  // Stop video after animation
+  // Pause video after animation
   setTimeout(() => {
-    if (player && player.stopVideo) {
-      player.stopVideo();
+    if (player && player.pauseVideo) {
+      player.pauseVideo();
+      player.mute();
     }
     const powerScreen = document.getElementById("power-off-screen");
     powerScreen.classList.add("active");
