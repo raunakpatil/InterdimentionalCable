@@ -118,9 +118,12 @@ function onPlayerStateChange(event) {
       isCueingFallbackVideo = false;
       const duration = player.getDuration() || 0;
       let startSec = 0;
-      if (duration > 30) {
-         // Start between 10% and 80% into the video
-         startSec = Math.floor(duration * 0.1 + Math.random() * (duration * 0.7));
+      if (duration >= 180) {
+         // >= 3 minutes: play from the 25% point
+         startSec = Math.floor(duration * 0.25);
+      } else if (duration > 30) {
+         // < 3 minutes: play from the 10% point
+         startSec = Math.floor(duration * 0.10);
       }
       player.seekTo(startSec, true);
       player.playVideo();
