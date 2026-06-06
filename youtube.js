@@ -194,38 +194,6 @@ function onPlayerError(event) {
   }, 300);
 }
 
-// ── Video Queue Management ───────────────────────────────
-
-let hasShownApiError = false;
-let isCueingFallbackPlaylist = false;
-let isCueingFallbackVideo = false;
-
-async function fetchVideoQueue(channel) {
-  // Check if API key is set
-  if (typeof YT_API_KEY === "undefined" || !YT_API_KEY || YT_API_KEY.length < 5) {
-    if (!hasShownApiError) {
-      console.warn("NO YOUTUBE API KEY FOUND! Using fallback vault.");
-      hasShownApiError = true;
-    }
-    return [];
-  }
-
-  try {
-    const results = await fetchFromAPI(channel);
-    if (!results || results.length === 0) {
-      hasShownApiError = true;
-      return [];
-    }
-    return results;
-  } catch (err) {
-    console.error("API fetch failed:", err);
-    if (!hasShownApiError && err.message.includes("429")) {
-      console.warn("YouTube API Quota Exceeded (429). Falling back to hardcoded playlists.");
-    }
-    hasShownApiError = true;
-    return [];
-  }
-}
 
 const FALLBACK_VAULT = [
   "PLx8zUw4PoWHgqy5bD0HcuuTgVqPOSNrHn",
@@ -314,99 +282,7 @@ function playFallbackVaultItem() {
   }
 }
 
-// ── API Mode: YouTube Data API v3 ────────────────────────
-async function fetchFromAPI(channel) {
-  // Check localStorage cache FIRST to save API quota
-  const cacheKey = "queue_" + channel.id;
-  const cached = JSON.parse(localStorage.getItem(cacheKey));
-  if (cached && cached.expiry > Date.now() && cached.videos && cached.videos.length > 0) {
-    return cached.videos;
-  }
 
-  // Check for custom override in Settings
-  const savedSettings = JSON.parse(localStorage.getItem("custom_channels")) || {};
-  const customQuery = savedSettings[channel.id];
-
-  // Pick random search topic (or use custom)
-  let topic = "";
-  if (customQuery) {
-    topic = customQuery;
-  } else {
-    topic = channel.topics[Math.floor(Math.random() * channel.topics.length)];
-    
-    // 70% chance to make the query extremely weird, trippy, or hilarious
-    if (Math.random() > 0.3) {
-      const weirdModifiers = [
-        "trippy", "surreal", "bizarre", "psychedelic", "fever dream", "weird", "liminal",
-        "funny when high", "shitpost", "cursed video", "absurdist comedy", "late night adult swim", "brainrot",
-        "funny ai slop", "animated videos for adult", "animated horror videos",
-        "random nonsense", "chaotic random", "weirdcore", "dreamcore", "schizophrenic edit", "surreal meme"
-      ];
-      const mod = weirdModifiers[Math.floor(Math.random() * weirdModifiers.length)];
-      topic = topic + " " + mod;
-    }
-  }
-
-  // Globally exclude tutorials, news, and podcasts
-  const negativeKeywords = ' -tutorial -news -"how to" -"breaking news" -"news channel" -podcast';
-  const finalQuery = topic + negativeKeywords;
-
-  const searchUrl =
-    "https://www.googleapis.com/youtube/v3/search?" +
-    "part=id&type=video" +
-    "&q=" + encodeURIComponent(finalQuery) +
-    "&videoEmbeddable=true" +
-    "&maxResults=15" +
-    "&order=relevance" +
-    "&videoDuration=medium" +
-    "&key=" + YT_API_KEY;
-
-  const searchRes = await fetch(searchUrl);
-  if (!searchRes.ok) throw new Error("Search API error: " + searchRes.status);
-  const searchData = await searchRes.json();
-
-  if (!searchData.items || searchData.items.length === 0) {
-    throw new Error("No search results");
-  }
-
-  const videoIds = searchData.items.map((i) => i.id.videoId).join(",");
-
-  // Get durations (only 1 API unit for all!)
-  const detailUrl =
-    "https://www.googleapis.com/youtube/v3/videos?" +
-    "part=contentDetails,snippet" +
-    "&id=" + videoIds +
-    "&key=" + YT_API_KEY;
-
-  const detailRes = await fetch(detailUrl);
-  if (!detailRes.ok) throw new Error("Videos API error: " + detailRes.status);
-  const detailData = await detailRes.json();
-
-  const videos = detailData.items
-    .map((v) => ({
-      id: v.id,
-      title: v.snippet.title,
-      duration: parseISO8601Duration(v.contentDetails.duration),
-      hookStart: 0, // calculated below
-    }))
-    .filter((v) => v.duration > 60); // Skip shorts
-
-  // Calculate hook start points
-  videos.forEach((v) => {
-    v.hookStart = calculateHookStart(v.duration);
-  });
-
-  // Cache for 60 minutes to aggressively protect API quota
-  localStorage.setItem(
-    cacheKey,
-    JSON.stringify({
-      videos: videos,
-      expiry: Date.now() + 60 * 60 * 1000,
-    })
-  );
-
-  return videos;
-}
 
 // ── Watch History Tracking ───────────────────────────────
 function getPlayedVideos() {
@@ -430,63 +306,8 @@ async function playNextVideo() {
   showStaticOverlay();
   startStaticSound();
 
-  let validVideoFound = false;
-  let fetchAttempts = 0;
-  const playedHistory = getPlayedVideos();
-
-  while (!validVideoFound && fetchAttempts < 3) {
-    if (hasShownApiError) {
-      break; // Abort API search loop if in fallback mode
-    }
-
-    if (videoQueue.length === 0) {
-      const channel = CHANNELS.find((c) => c.id === currentChannel);
-      if (!channel) return;
-
-      const fetched = await fetchVideoQueue(channel);
-      
-      if (hasShownApiError) {
-        break; // fetch failed inside the loop
-      }
-
-      // Filter out previously played videos
-      const unplayed = fetched.filter((v) => !playedHistory.includes(v.id));
-      
-      // Shuffle
-      videoQueue = unplayed.sort(() => Math.random() - 0.5);
-      fetchAttempts++;
-
-      if (videoQueue.length === 0 && fetched.length > 0) {
-        // We fetched videos, but ALL of them were already played.
-        // Invalidate cache for this channel so next fetch hits the API for fresh results.
-        localStorage.removeItem("queue_" + currentChannel);
-        continue;
-      }
-    }
-
-    if (videoQueue.length === 0) {
-      console.warn("No valid videos found for channel", currentChannel);
-      break;
-    }
-
-    currentVideo = videoQueue.pop();
-    if (currentVideo) {
-      validVideoFound = true;
-    }
-  }
-
-  // Fallback: If we genuinely ran out of unplayed videos, or API is dead
-  if (!currentVideo || hasShownApiError) {
-    playFallbackVaultItem();
-    return;
-  }
-
-  markVideoPlayed(currentVideo.id);
-
-  player.loadVideoById({
-    videoId: currentVideo.id,
-    startSeconds: currentVideo.hookStart,
-  });
+  // Pure vault mode (API dependency removed)
+  playFallbackVaultItem();
 }
 
 // ── Commercial System ────────────────────────────────────
