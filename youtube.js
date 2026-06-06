@@ -54,18 +54,6 @@ window.onYouTubeIframeAPIReady = function () {
       onError: onPlayerError,
     },
   });
-
-  // Tap to play handler
-  const tapOverlay = document.getElementById("tap-to-play-overlay");
-  if (tapOverlay) {
-    tapOverlay.addEventListener("click", () => {
-      if (player && typeof player.playVideo === "function") {
-        player.unMute();
-        player.playVideo();
-        tapOverlay.classList.add("hidden");
-      }
-    });
-  }
 };
 
 function onPlayerReady() {
@@ -151,29 +139,9 @@ function onPlayerStateChange(event) {
         player.playVideo();
       }
     }, 500);
-
-    // If still stuck after 2.5s (likely strict mobile browser), show TAP TO PLAY overlay
-    clearTimeout(stuckTimer);
-    stuckTimer = setTimeout(() => {
-      if (player && player.getPlayerState() !== YT.PlayerState.PLAYING) {
-        const tapOverlay = document.getElementById("tap-to-play-overlay");
-        if (tapOverlay) tapOverlay.classList.remove("hidden");
-      }
-    }, 2500);
-  }
-
-  // If the browser forcefully pauses the video (happens on Instagram webview when unmuted)
-  if (event.data === YT.PlayerState.PAUSED) {
-    if (typeof isPoweredOn !== "undefined" && isPoweredOn) {
-      const tapOverlay = document.getElementById("tap-to-play-overlay");
-      if (tapOverlay) tapOverlay.classList.remove("hidden");
-    }
   }
 
   if (event.data === YT.PlayerState.PLAYING) {
-    clearTimeout(stuckTimer);
-    const tapOverlay = document.getElementById("tap-to-play-overlay");
-    if (tapOverlay) tapOverlay.classList.add("hidden");
     // Start monitoring playback to cut the video right before the end
     playbackMonitor = setInterval(() => {
       if (player && typeof player.getDuration === "function" && typeof player.getCurrentTime === "function") {
