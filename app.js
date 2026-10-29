@@ -182,6 +182,7 @@ function showChannelOSD(chNum) {
   osd.innerHTML = `
     <div class="osd-channel-num">CH ${numStr}</div>
     ${channel && channel.name ? `<div class="osd-channel-name">${channel.name}</div>` : ""}
+    ${channel && channel.dimension ? `<div class="osd-channel-dim">${channel.dimension}</div>` : ""}
   `;
 
   osd.classList.add("visible");
@@ -443,8 +444,6 @@ function typeBootSequence() {
 // ── Remote Control Buttons ───────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
   typeBootSequence();
-  initChromaKey();
-  initSettingsUI();
 
   const btn = (id, handler) => {
     const el = document.getElementById(id);
@@ -500,6 +499,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ── Chroma Key Overlay ───────────────────────────────────
+window.initChromaKey = initChromaKey;
 function initChromaKey() {
   const canvas = document.getElementById('room-overlay-canvas');
   if (!canvas) return;
@@ -531,60 +531,4 @@ function initChromaKey() {
     }
     ctx.putImageData(imageData, 0, 0);
   };
-}
-
-// ── Settings UI ──────────────────────────────────────────
-function initSettingsUI() {
-  const modal = document.getElementById("settings-modal");
-  const btnSettings = document.getElementById("btn-settings");
-  const btnClose = document.getElementById("btn-close-settings");
-  const btnSave = document.getElementById("btn-save-settings");
-  const inputsContainer = document.getElementById("channel-inputs");
-  
-  if (!modal || !btnSettings) return;
-
-  // Load saved settings
-  const savedSettings = JSON.parse(localStorage.getItem("custom_channels")) || {};
-
-  // Build inputs
-  let html = "";
-  CHANNELS.forEach(ch => {
-    const val = savedSettings[ch.id] || "";
-    html += `
-      <div class="channel-input-row">
-        <label>CH ${ch.id}</label>
-        <input type="text" id="setting-ch-${ch.id}" placeholder="Default (${ch.name})" value="${val}">
-      </div>
-    `;
-  });
-  inputsContainer.innerHTML = html;
-
-  btnSettings.addEventListener("click", () => {
-    modal.classList.add("active");
-  });
-
-  btnClose.addEventListener("click", () => {
-    modal.classList.remove("active");
-  });
-
-  btnSave.addEventListener("click", () => {
-    const newSettings = {};
-    CHANNELS.forEach(ch => {
-      const val = document.getElementById(`setting-ch-${ch.id}`).value.trim();
-      if (val) {
-        newSettings[ch.id] = val;
-      }
-    });
-    localStorage.setItem("custom_channels", JSON.stringify(newSettings));
-    
-    // Clear queue caches so new settings take effect
-    CHANNELS.forEach(ch => localStorage.removeItem("queue_" + ch.id));
-    
-    // Reboot TV
-    modal.classList.remove("active");
-    if (isPoweredOn) powerOff();
-    setTimeout(() => {
-      window.location.reload();
-    }, 1000);
-  });
 }

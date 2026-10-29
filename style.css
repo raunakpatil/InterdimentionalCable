@@ -411,101 +411,6 @@ body {
   animation: vhs-color-bleed 0.4s ease-in-out infinite !important;
 }
 
-/* ── Settings Modal ─────────────────────────────────────── */
-.modal {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  background: rgba(0, 0, 100, 0.85); /* Authentic VCR blue background */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease;
-  backdrop-filter: blur(5px);
-  font-family: 'Courier New', Courier, monospace;
-}
-
-.modal.active {
-  opacity: 1;
-  pointer-events: all;
-}
-
-.modal-content {
-  background: #0000aa;
-  border: 4px solid #fff;
-  padding: 30px;
-  width: 90%;
-  max-width: 600px;
-  max-height: 85vh;
-  overflow-y: auto;
-  box-shadow: 0 0 20px rgba(0,0,0,0.8);
-  color: #fff;
-  text-shadow: 2px 2px 0 #000;
-}
-
-.modal-content h2 {
-  margin-top: 0;
-  margin-bottom: 5px;
-  font-size: 24px;
-  text-align: center;
-}
-
-.modal-subtitle {
-  text-align: center;
-  margin-bottom: 25px;
-  font-size: 14px;
-  color: #aaddff;
-}
-
-.channel-input-row {
-  display: flex;
-  margin-bottom: 15px;
-  align-items: center;
-}
-
-.channel-input-row label {
-  width: 60px;
-  font-weight: bold;
-}
-
-.channel-input-row input {
-  flex-grow: 1;
-  background: #000066;
-  border: 2px inset #fff;
-  color: #fff;
-  padding: 8px;
-  font-family: inherit;
-  font-size: 14px;
-}
-
-.channel-input-row input:focus {
-  background: #0000cc;
-  outline: none;
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 30px;
-}
-
-.modal-actions button {
-  background: #fff;
-  color: #0000aa;
-  border: 2px outset #fff;
-  padding: 10px 20px;
-  font-family: inherit;
-  font-weight: bold;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-.modal-actions button:active {
-  border-style: inset;
-}
-
 #static-canvas {
   position: absolute;
   inset: 0;
@@ -539,6 +444,14 @@ body {
   font-size: clamp(14px, 2.5vw, 24px);
   font-weight: bold;
   letter-spacing: 2px;
+}
+
+.osd-channel-dim {
+  font-size: clamp(8px, 1.1vw, 11px);
+  color: #00ffcc;
+  opacity: 0.85;
+  margin-top: 1px;
+  letter-spacing: 1px;
 }
 
 .osd-channel-name {
@@ -726,123 +639,6 @@ body {
   margin-bottom: 2px;
   letter-spacing: 1px;
   text-transform: uppercase;
-}
-
-/* ── Splash Screen ────────────────────────────────────── */
-#splash-screen {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: radial-gradient(
-    ellipse at center,
-    rgba(5, 10, 20, 0.92) 0%,
-    rgba(2, 3, 5, 0.98) 100%
-  );
-  backdrop-filter: blur(8px);
-  transition: opacity 0.6s ease;
-}
-
-#splash-screen.fade-out {
-  opacity: 0;
-  pointer-events: none;
-}
-
-.splash-title {
-  font-family: var(--ui-font);
-  font-size: clamp(12px, 2.5vw, 28px);
-  color: rgba(0, 255, 200, 0.9);
-  text-shadow:
-    0 0 20px rgba(0, 255, 200, 0.4),
-    0 0 60px rgba(0, 255, 200, 0.15);
-  text-align: center;
-  line-height: 1.8;
-  margin-bottom: 40px;
-  letter-spacing: 3px;
-}
-
-.splash-subtitle {
-  font-family: var(--osd-font);
-  font-size: clamp(12px, 1.8vw, 20px);
-  color: rgba(255, 255, 255, 0.4);
-  margin-bottom: 50px;
-  letter-spacing: 2px;
-}
-
-#splash-btn {
-  font-family: var(--ui-font);
-  font-size: clamp(10px, 1.5vw, 16px);
-  color: #fff;
-  background: transparent;
-  border: 2px solid rgba(0, 255, 200, 0.5);
-  padding: 16px 40px;
-  border-radius: 6px;
-  cursor: pointer;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  transition: all 0.3s ease;
-  animation: splashPulse 2s ease-in-out infinite;
-  position: relative;
-  overflow: hidden;
-}
-
-#splash-btn::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(0, 255, 200, 0.1) 0%,
-    rgba(0, 200, 255, 0.05) 100%
-  );
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-#splash-btn:hover {
-  border-color: rgba(0, 255, 200, 0.9);
-  box-shadow:
-    0 0 30px rgba(0, 255, 200, 0.2),
-    inset 0 0 30px rgba(0, 255, 200, 0.05);
-  transform: scale(1.05);
-}
-
-#splash-btn:hover::before {
-  opacity: 1;
-}
-
-#splash-btn:active {
-  transform: scale(0.98);
-}
-
-@keyframes splashPulse {
-  0%, 100% { box-shadow: 0 0 10px rgba(0, 255, 200, 0.1); }
-  50%      { box-shadow: 0 0 25px rgba(0, 255, 200, 0.25); }
-}
-
-.splash-controls {
-  margin-top: 50px;
-  font-family: var(--osd-font);
-  font-size: clamp(10px, 1.2vw, 14px);
-  color: rgba(255, 255, 255, 0.25);
-  text-align: center;
-  line-height: 2;
-  letter-spacing: 1px;
-}
-
-.splash-controls kbd {
-  display: inline-block;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 4px;
-  padding: 2px 8px;
-  font-family: var(--osd-font);
-  font-size: inherit;
-  color: rgba(255, 255, 255, 0.5);
-  margin: 0 2px;
 }
 
 /* ── Ambient Noise Lines (decorative) ─────────────────── */

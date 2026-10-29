@@ -1637,6 +1637,7 @@ async function init() {
   if (!webglAvailable()) {
     hideLoadingScreen();
     warn("WebGL unavailable; showing the static room.");
+    if (typeof window.initChromaKey === "function") window.initChromaKey();
     return;
   }
 
@@ -1665,6 +1666,7 @@ async function init() {
     );
     warn("No model found. Candidates:", CONFIG.modelUrls.join(", "));
     hideLoadingScreen();
+    if (typeof window.initChromaKey === "function") window.initChromaKey();
     return;
   }
 
@@ -1788,6 +1790,7 @@ async function init() {
       "Could not load the 3D room. Check the console or the model filename.",
       0
     );
+    if (typeof window.initChromaKey === "function") window.initChromaKey();
     return;
   } finally {
     STATE.loading = false;

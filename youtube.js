@@ -499,18 +499,26 @@ const FALLBACK_VAULT = [
   "PL8HuhQ6MvmEpW2OlcgY3erGGqfvmHkrLM"
 ];
 
-let vaultBag = [];
+const channelBags = {};
 
-function getFallbackVaultItem() {
-  if (vaultBag.length === 0) {
-    vaultBag = [...FALLBACK_VAULT].sort(() => Math.random() - 0.5);
+function getFallbackVaultItem(chNum) {
+  const currentCh = typeof channelNumber !== "undefined" ? channelNumber : (chNum || 1);
+  const chData = (typeof CHANNELS !== "undefined" && CHANNELS[currentCh - 1]) ? CHANNELS[currentCh - 1] : null;
+  const list = (chData && chData.playlists && chData.playlists.length > 0) ? chData.playlists : FALLBACK_VAULT;
+  const bagKey = chData ? chData.id : "global";
+
+  if (!channelBags[bagKey] || channelBags[bagKey].length === 0) {
+    const copy = [...list];
+    for (let i = copy.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    channelBags[bagKey] = copy;
   }
-  return vaultBag.pop();
+  return channelBags[bagKey].pop() || FALLBACK_VAULT[Math.floor(Math.random() * FALLBACK_VAULT.length)];
 }
 
 function playFallbackVaultItem() {
-  hasShownApiError = true;
-  videoQueue = []; // Clear queue so we don't mix modes
   const vaultItem = getFallbackVaultItem();
 
   // Explicitly mute player before cueing so mobile browsers allow async playVideo()
@@ -527,8 +535,6 @@ function playFallbackVaultItem() {
   }
 }
 
-
-
 // ── Watch History Tracking ───────────────────────────────
 function getPlayedVideos() {
   return JSON.parse(localStorage.getItem("played_videos") || "[]");
@@ -543,16 +549,45 @@ function markVideoPlayed(id) {
   }
 }
 
+// ── Broadcast End Handler & Commercial Breaks ────────────
+function handleVideoEnded() {
+  if (playbackMonitor) {
+    clearInterval(playbackMonitor);
+    playbackMonitor = null;
+  }
+
+  // If a commercial just finished, return to normal channel content
+  if (isPlayingCommercial) {
+    isPlayingCommercial = false;
+    if (typeof hideCommercialBug === "function") hideCommercialBug();
+    playNextVideo();
+    return;
+  }
+
+  videosSinceCommercial++;
+  // Every 3-4 videos, take a quick nostalgic commercial break (~45% chance after at least 3 videos)
+  if (videosSinceCommercial >= 3 && Math.random() < 0.45 && typeof COMMERCIALS !== "undefined" && COMMERCIALS.length > 0) {
+    videosSinceCommercial = 0;
+    playCommercial();
+  } else {
+    isPlayingCommercial = false;
+    if (typeof hideCommercialBug === "function") hideCommercialBug();
+    playNextVideo();
+  }
+}
+
 // ── Play Next Video ──────────────────────────────────────
 async function playNextVideo() {
   if (!playerReady || !player) return;
   if (typeof isPoweredOn !== "undefined" && !isPoweredOn) return;
 
+  switchSessionId++;
+  cueingSessionId = switchSessionId;
+
   // Mask video transitions and loading times with static
   showStaticOverlay();
   startStaticSound();
 
-  // Pure vault mode (API dependency removed)
   armStuckTimer();
   playFallbackVaultItem();
 }
@@ -565,7 +600,6 @@ function playCommercial() {
     return;
   }
 
-  // Don't repeat last commercial
   let idx;
   do {
     idx = Math.floor(Math.random() * COMMERCIALS.length);
@@ -574,36 +608,25 @@ function playCommercial() {
   lastCommercialIndex = idx;
   isPlayingCommercial = true;
 
+  switchSessionId++;
+  cueingSessionId = switchSessionId;
+
   // Show "AD" bug
-  showCommercialBug();
+  if (typeof showCommercialBug === "function") showCommercialBug();
 
   // Brief static transition
   showStaticOverlay();
-  playSound("channel-switch");
+  startStaticSound();
+  if (typeof playSound === "function") playSound("channel-switch");
 
+  armStuckTimer();
   setTimeout(() => {
-    player.loadVideoById({
-      videoId: COMMERCIALS[idx].id,
-      startSeconds: 0, // Commercials always start from beginning
-    });
+    if (typeof isPoweredOn !== "undefined" && !isPoweredOn) return;
+    if (player && typeof player.loadVideoById === "function") {
+      player.loadVideoById({
+        videoId: COMMERCIALS[idx].id,
+        startSeconds: 0, // Commercials always start from beginning
+      });
+    }
   }, 400);
-}
-
-// ── Duration Parsing ─────────────────────────────────────
-function parseISO8601Duration(duration) {
-  // "PT4M33S" → 273 seconds
-  const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-  if (!match) return 0;
-  return (
-    ((+match[1] || 0) * 3600) +
-    ((+match[2] || 0) * 60) +
-    (+match[3] || 0)
-  );
-}
-
-function calculateHookStart(durationSeconds) {
-  // Start between 3% and 30% into the video
-  const min = Math.floor(durationSeconds * 0.03);
-  const max = Math.floor(durationSeconds * 0.30);
-  return Math.floor(Math.random() * (max - min)) + min;
 }

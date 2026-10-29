@@ -15,24 +15,26 @@ let staticAnimFrame = null;
 let channelOSDTimeout = null;
 let commercialBugTimeout = null;
 
+const STATIC_WIDTH = 320;
+const STATIC_HEIGHT = 240;
+let staticImageData = null;
+let staticBuf32 = null;
+
 // ── Canvas Static Generator ──────────────────────────────
 function generateStatic(canvas) {
   const ctx = canvas.getContext("2d");
-  const w = canvas.width;
-  const h = canvas.height;
-  const imageData = ctx.createImageData(w, h);
-  const data = imageData.data;
-  const len = data.length;
-
-  for (let i = 0; i < len; i += 4) {
-    const v = (Math.random() * 255) | 0;
-    data[i] = v;       // R
-    data[i + 1] = v;   // G
-    data[i + 2] = v;   // B
-    data[i + 3] = 255; // A — fully opaque
+  if (!staticImageData || staticImageData.width !== STATIC_WIDTH || staticImageData.height !== STATIC_HEIGHT) {
+    staticImageData = ctx.createImageData(STATIC_WIDTH, STATIC_HEIGHT);
+    staticBuf32 = new Uint32Array(staticImageData.data.buffer);
   }
 
-  ctx.putImageData(imageData, 0, 0);
+  const len = staticBuf32.length;
+  for (let i = 0; i < len; i++) {
+    const v = (Math.random() * 255) | 0;
+    staticBuf32[i] = 0xff000000 | (v << 16) | (v << 8) | v;
+  }
+
+  ctx.putImageData(staticImageData, 0, 0);
 
   // Disable extra visual effects on mobile
   if (window.innerWidth <= 768) {
@@ -44,14 +46,14 @@ function generateStatic(canvas) {
   ctx.globalCompositeOperation = "overlay";
   
   // Rolling bright band (tracking hum)
-  const yOffset1 = (time * 180) % h;
+  const yOffset1 = (time * 180) % STATIC_HEIGHT;
   ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
-  ctx.fillRect(0, yOffset1, w, Math.random() * 30 + 10);
+  ctx.fillRect(0, yOffset1, STATIC_WIDTH, Math.random() * 30 + 10);
   
   // Rolling dark band
-  const yOffset2 = h - ((time * 120) % h);
+  const yOffset2 = STATIC_HEIGHT - ((time * 120) % STATIC_HEIGHT);
   ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
-  ctx.fillRect(0, yOffset2, w, Math.random() * 20 + 5);
+  ctx.fillRect(0, yOffset2, STATIC_WIDTH, Math.random() * 20 + 5);
 
   ctx.globalCompositeOperation = "source-over";
 }
@@ -76,11 +78,13 @@ function stopStaticAnimation() {
 function showStaticOverlay() {
   const overlay = document.getElementById("static-overlay");
   const canvas = document.getElementById("static-canvas");
+  if (!overlay || !canvas) return;
 
-  // Size canvas to exactly match screen pixel dimensions
-  const rect = overlay.parentElement.getBoundingClientRect();
-  canvas.width = Math.floor(rect.width);
-  canvas.height = Math.floor(rect.height);
+  // Use fixed retro CRT resolution; CSS image-rendering: pixelated handles the upscale
+  if (canvas.width !== STATIC_WIDTH || canvas.height !== STATIC_HEIGHT) {
+    canvas.width = STATIC_WIDTH;
+    canvas.height = STATIC_HEIGHT;
+  }
 
   overlay.classList.add("active");
   startStaticAnimation(canvas);
