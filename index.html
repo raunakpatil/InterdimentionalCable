@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>InterDimentional Cable TV</title>
   <meta name="description" content="A free browser-based broadcast TV simulator. Flip through bizarre channels of interdimensional cable — no pause, no rewind, just pure chaos.">
   <meta name="theme-color" content="#050403">
@@ -11,13 +11,74 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+
+  <!-- 3D runtime (only fetched when the 3D room is enabled) -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   
   <!-- Favicon (CRT emoji) -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📺</text></svg>">
   
-  <link rel="stylesheet" href="style.css?v=61">
+  <link rel="stylesheet" href="style.css?v=88">
+  <link rel="stylesheet" href="three-scene.css?v=88">
+
+  <!-- The 3D room is the only view. Show the boot screen before anything
+       paints; three-scene.js hides it on success or on a hard failure. -->
+  <script>
+    (function () {
+      document.documentElement.classList.add("room3d-pending");
+
+      var loader = {
+        lastProgress: Date.now(),
+        progress: function (percent) {
+          var el = document.getElementById("room-loading");
+          if (!el || el.dataset.hiding) return;
+          loader.lastProgress = Date.now();
+          var fill = el.querySelector(".room-loading__fill");
+          if (fill) {
+            var value = Math.max(0, Math.min(100, Number(percent) || 0));
+            fill.style.width = value + "%";
+          }
+        },
+        hide: function () {
+          var el = document.getElementById("room-loading");
+          var root = document.documentElement;
+          if (loader._hidden) return;
+          if (!el) {
+            root.classList.remove("room3d-pending");
+            return;
+          }
+          loader._hidden = true;
+          loader.progress(100);
+          el.dataset.hiding = "1";
+          el.classList.add("is-hiding");
+          window.setTimeout(function () {
+            root.classList.remove("room3d-pending");
+            if (el.parentNode) el.parentNode.removeChild(el);
+          }, 550);
+        },
+      };
+      window.__roomLoader = loader;
+
+      // Escape hatch: hide only if loading has stalled for 30 seconds.
+      // Progress events keep extending this during a slow download.
+      window.setInterval(function () {
+        if (!document.documentElement.classList.contains("room3d-pending")) return;
+        if (Date.now() - loader.lastProgress > 30000) loader.hide();
+      }, 5000);
+    })();
+  </script>
 </head>
 <body>
+
+  <!-- Boot screen shown only while the 3D room is being fetched. -->
+  <div id="room-loading" role="status" aria-live="polite" aria-label="Loading Interdimensional TV">
+    <div class="room-loading__inner">
+      <div class="room-loading__mark">INTERDIMENSIONAL TV</div>
+      <div class="room-loading__bar" aria-hidden="true">
+        <span class="room-loading__fill"></span>
+      </div>
+    </div>
+  </div>
 
   <!-- ═══════════════════════════════════════════════════════ -->
   <!--  ROOM CONTAINER (Used for zooming)                      -->
@@ -128,12 +189,26 @@
   <!-- ═══════════════════════════════════════════════════════ -->
   <!--  SCRIPTS (order matters — deps loaded first)            -->
   <!-- ═══════════════════════════════════════════════════════ -->
-  <script src="channels.js?v=65"></script>
-  <script src="commercials.js?v=65"></script>
-  <script src="sounds.js?v=65"></script>
-  <script src="effects.js?v=65"></script>
-  <script src="youtube.js?v=65"></script>
-  <script src="app.js?v=65"></script>
+  <!-- 3D room imports (only used by three-scene.js) -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"
+      }
+    }
+  </script>
+
+  <script src="channels.js?v=88"></script>
+  <script src="commercials.js?v=88"></script>
+  <script src="sounds.js?v=88"></script>
+  <script src="effects.js?v=88"></script>
+  <script src="youtube.js?v=88"></script>
+  <script src="app.js?v=88"></script>
+  <script src="posters.js?v=88"></script>
+
+  <!-- The 3D room. The hidden DOM room is its TV/remote host. -->
+  <script type="module" src="three-scene.js?v=88"></script>
 
   <div id="creator-footer">
     <a href="https://github.com/raunakpatil" target="_blank">built with ❤️ by raunakpatil</a>

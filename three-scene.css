@@ -1,0 +1,314 @@
+/* ══════════════════════════════════════════════════════════
+   INTERGALACTIC CABLE TV — 3D Room Layer
+   ══════════════════════════════════════════════════════════
+
+   Only active when <body> has the .env-3d class. The hidden DOM room
+   is the CSS3D host for the TV/remote and the static fallback if
+   WebGL, the model, or the connection is not up to the job.
+
+   Layer stack in 3D mode (bottom → top):
+     1. WebGL room renderer   (#room-3d-root)
+     2. CSS3D renderer        (#room-3d-css → .tv-css3d-surface)
+     3. Remote / OSD / footer (existing fixed UI)
+     4. Status messages       (#room3d-status)
+     5. Boot / model loader   (#room-loading, removed once ready)
+   ══════════════════════════════════════════════════════════ */
+
+/* ── Boot / model loading screen ───────────────────────── */
+#room-loading {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: none;
+  place-items: center;
+  background:
+    radial-gradient(ellipse at 50% 48%, rgba(22, 40, 48, 0.6), transparent 58%),
+    #050403;
+  color: #eef9ff;
+  font-family: "Press Start 2P", monospace;
+  text-align: center;
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity 0.55s ease,
+    visibility 0.55s ease;
+  cursor: progress;
+}
+
+html.room3d-pending #room-loading {
+  display: grid;
+}
+
+#room-loading::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.022) 0,
+    rgba(255, 255, 255, 0.022) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  pointer-events: none;
+}
+
+#room-loading.is-hiding {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.room-loading__inner {
+  position: relative;
+  z-index: 1;
+  padding: 24px;
+}
+
+.room-loading__mark {
+  font-size: clamp(15px, 3.4vw, 34px);
+  letter-spacing: 0.14em;
+  line-height: 1.7;
+  text-shadow:
+    0 0 12px rgba(130, 220, 255, 0.45),
+    0 0 38px rgba(130, 220, 255, 0.16);
+  animation: room-loading-pulse 2.6s ease-in-out infinite;
+}
+
+.room-loading__bar {
+  width: min(240px, 52vw);
+  height: 2px;
+  margin: 26px auto 0;
+  overflow: hidden;
+  background: rgba(160, 225, 255, 0.14);
+}
+
+.room-loading__fill {
+  display: block;
+  width: 4%;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(120, 220, 255, 0.5), #eafaff);
+  box-shadow: 0 0 10px rgba(130, 220, 255, 0.7);
+  transition: width 0.3s ease;
+}
+
+@keyframes room-loading-pulse {
+  0%,
+  100% {
+    opacity: 0.72;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #room-loading,
+  .room-loading__fill {
+    transition: none;
+  }
+
+  .room-loading__mark {
+    animation: none;
+  }
+}
+
+#room-3d-root {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  display: none;
+  overflow: hidden;
+  background: #050403;
+  /* Avoid a flash of unstyled canvas before the first frame. */
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+body.env-3d #room-3d-root {
+  display: block;
+}
+
+body.env-3d #room-3d-root.is-ready {
+  opacity: 1;
+}
+
+#room-3d-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  outline: none;
+}
+
+/* CSS3D layer carries the live TV screen. Keep it above the
+   canvas but out of the way of the remote and page gestures. */
+#room-3d-css {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  display: none;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+body.env-3d #room-3d-css {
+  display: block;
+}
+
+/* Hide the pre-rendered room whenever 3D is live. The TV screen
+   has already been moved into the CSS3D layer by this point. */
+body.env-3d #room-container,
+body.env-3d #tv-off-bg,
+body.env-3d #room-overlay-canvas {
+  display: none !important;
+}
+
+/* The boot log belongs to the 2D set; in 3D it floats over the room. */
+body.env-3d #boot-text,
+body.env-3d #mobile-swipe-hint {
+  display: none !important;
+}
+
+/* ── The live TV surface ──────────────────────────────── */
+.tv-css3d-surface {
+  position: relative;
+  overflow: hidden;
+  background: #000;
+  border-radius: var(--crt-curve, 12px);
+  pointer-events: none;
+  container-type: inline-size;
+  /* A hint of glass so the screen sits inside the model. */
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.85),
+    0 0 24px rgba(120, 190, 255, 0.06);
+  /* The CSS3D renderer owns `transform`; never set it here. */
+  transform-style: preserve-3d;
+}
+
+.tv-css3d-surface > #tv-screen {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* 16:9 video inside a 5:4 CRT-safe area. The extra width hides
+   YouTube's chrome while keeping more picture than the 2D cutout. */
+.tv-css3d-viewport {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 5 / 4;
+  overflow: hidden;
+  background: #000;
+  transform: translate(-50%, -50%);
+}
+
+.tv-css3d-viewport #tv-content {
+  position: absolute;
+  inset: 0;
+}
+
+body.env-3d .tv-css3d-viewport #yt-player {
+  top: 50%;
+  left: 50%;
+  width: 160%;
+  height: auto;
+  min-width: 0;
+  min-height: 0;
+  aspect-ratio: 16 / 9;
+  transform: translate(-50%, -50%);
+}
+
+/* OSD sizing is driven by viewport widths in 2D. Inside the
+   scaled 3D surface, use surface-relative sizes instead. */
+body.env-3d .tv-css3d-surface #channel-osd {
+  top: 3.5%;
+  right: 3%;
+  padding: 0.7cqw 1.1cqw;
+  border-radius: 0.5cqw;
+  background: rgba(0, 0, 0, 0.42);
+  text-shadow:
+    0 0 1.1cqw rgba(0, 0, 0, 0.9),
+    0 0 2cqw rgba(0, 0, 0, 0.55);
+}
+
+body.env-3d .tv-css3d-surface .osd-channel-num {
+  font-size: 6.2cqw;
+  letter-spacing: 0.25cqw;
+}
+
+body.env-3d .tv-css3d-surface .osd-channel-name {
+  font-size: 3cqw;
+  letter-spacing: 0.12cqw;
+}
+
+body.env-3d .tv-css3d-surface .osd-volume-bar {
+  font-size: 3.4cqw;
+}
+
+body.env-3d .tv-css3d-surface #commercial-bug {
+  top: 4%;
+  left: 4%;
+  padding: 0.3cqw 0.8cqw;
+  font-size: 2.4cqw;
+  border-radius: 0.3cqw;
+}
+
+/* ── Loading / status pill ────────────────────────────── */
+#room3d-status {
+  position: fixed;
+  left: 50%;
+  bottom: 26px;
+  z-index: 1200;
+  max-width: min(86vw, 620px);
+  padding: 9px 14px;
+  transform: translateX(-50%);
+  border: 1px solid rgba(120, 200, 255, 0.18);
+  border-radius: 4px;
+  background: rgba(4, 8, 12, 0.82);
+  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.55);
+  color: rgba(200, 230, 255, 0.82);
+  font-family: var(--ui-font, monospace);
+  font-size: 9px;
+  line-height: 1.7;
+  letter-spacing: 1px;
+  text-align: center;
+  text-transform: uppercase;
+  pointer-events: none;
+  backdrop-filter: blur(6px);
+}
+
+#room3d-status[hidden] {
+  display: none;
+}
+
+/* ── Debug helpers ────────────────────────────────────── */
+body.env-3d.room3d-debug #room-3d-root::after {
+  content: "3D DEBUG";
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  color: #00ff88;
+  font: 10px/1.4 monospace;
+  letter-spacing: 2px;
+  pointer-events: none;
+}
+
+/* ── Mobile ───────────────────────────────────────────── */
+@media (max-width: 768px) {
+  #room3d-status {
+    bottom: 18px;
+    max-width: 88vw;
+    padding: 8px 11px;
+    font-size: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #room-3d-root {
+    transition: none;
+  }
+}

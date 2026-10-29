@@ -360,7 +360,6 @@ body {
 #static-overlay {
   position: absolute;
   inset: -10%;
-  background: url('assets/static.gif') center / cover;
   opacity: 0;
   pointer-events: none;
   z-index: 6;

@@ -21,6 +21,9 @@ let playerReady = false;
 let lastCommercialIndex = -1;
 let playbackMonitor = null;
 let stuckTimer = null;
+let isCueingFallbackPlaylist = false;
+let isCueingFallbackVideo = false;
+let hasShownApiError = false;
 
 // ── Initialize YouTube IFrame API ────────────────────────
 function initYouTubePlayer() {
@@ -59,6 +62,10 @@ window.onYouTubeIframeAPIReady = function () {
 function onPlayerReady() {
   playerReady = true;
   player.setVolume(80);
+
+  // The user may have powered the set off while the API was loading.
+  if (typeof isPoweredOn !== "undefined" && !isPoweredOn) return;
+
   showStaticOverlay();
   startStaticSound();
   playNextVideo();
@@ -318,6 +325,7 @@ function markVideoPlayed(id) {
 // ── Play Next Video ──────────────────────────────────────
 async function playNextVideo() {
   if (!playerReady || !player) return;
+  if (typeof isPoweredOn !== "undefined" && !isPoweredOn) return;
 
   // Mask video transitions and loading times with static
   showStaticOverlay();
@@ -329,6 +337,7 @@ async function playNextVideo() {
 
 // ── Commercial System ────────────────────────────────────
 function playCommercial() {
+  if (typeof isPoweredOn !== "undefined" && !isPoweredOn) return;
   if (!COMMERCIALS || COMMERCIALS.length === 0) {
     playNextVideo();
     return;

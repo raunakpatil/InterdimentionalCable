@@ -13,6 +13,16 @@ let appState = "powered_off"; // splash | powered_on | powered_off
 
 // ── Power On ─────────────────────────────────────────────
 function powerOn() {
+  // The 3D room is the only view. If it is still loading, remember the
+  // press and turn the set on as soon as the room is ready.
+  if (
+    !window.Environment3D?.active &&
+    document.documentElement.classList.contains("room3d-pending")
+  ) {
+    window.__pendingPowerOn = true;
+    return;
+  }
+
   appState = "powered_on";
   isPoweredOn = true;
   document.body.classList.add("tv-on");
@@ -67,6 +77,19 @@ function powerOff() {
   stopStaticSound();
   stopScreenGlitches();
 
+  // Kill the playback watchdog before it can queue another video.
+  if (typeof playbackMonitor !== "undefined" && playbackMonitor) {
+    clearInterval(playbackMonitor);
+    playbackMonitor = null;
+  }
+  if (typeof stuckTimer !== "undefined" && stuckTimer) {
+    clearTimeout(stuckTimer);
+    stuckTimer = null;
+  }
+  if (typeof hideStaticOverlay === "function") hideStaticOverlay();
+  if (typeof hideCommercialBug === "function") hideCommercialBug();
+  if (typeof isPlayingCommercial !== "undefined") isPlayingCommercial = false;
+
   const tvScreen = document.getElementById("tv-screen");
   if (tvScreen) {
     tvScreen.classList.remove("powering-off");
@@ -90,8 +113,10 @@ function powerOff() {
     if (tvOffBg) tvOffBg.classList.remove("hidden");
   }, 500);
 
-  // Soft refresh the page to completely reset the player state after zoom-out finishes
+  // Soft refresh the page to completely reset the player state after zoom-out finishes.
+  // In 3D mode the room is persistent, so reset in place instead.
   setTimeout(() => {
+    if (window.Environment3D?.handlePowerOff?.()) return;
     location.reload();
   }, 2000);
 }
@@ -156,6 +181,7 @@ function showChannelOSD(chNum) {
   const numStr = String(chNum).padStart(2, "0");
   osd.innerHTML = `
     <div class="osd-channel-num">CH ${numStr}</div>
+    ${channel && channel.name ? `<div class="osd-channel-name">${channel.name}</div>` : ""}
   `;
 
   osd.classList.add("visible");
@@ -163,7 +189,7 @@ function showChannelOSD(chNum) {
   clearTimeout(channelOSDTimeout);
   channelOSDTimeout = setTimeout(() => {
     osd.classList.remove("visible");
-  }, 1500);
+  }, 2500);
 }
 
 function showVolumeOSD(vol) {

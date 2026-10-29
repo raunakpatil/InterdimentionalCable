@@ -1,0 +1,20 @@
+# ── 3D source / scratch ──────────────────────────────────
+# The web build is room.glb (optimized, committed). The original
+# Sketchfab download and local previews stay out of git.
+corner_of_the_room_90s_teenager_theme.glb
+rogland_clear_night.jpg
+*.crdownload
+_glb_preview/
+_debug/
+
+# ── Local promo captures ─────────────────────────────────
+promo/build/
+promo/frames/
+promo/stills/
+promo/audio/raw/
+
+# ── Tooling / OS noise ───────────────────────────────────
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
