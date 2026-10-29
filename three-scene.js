@@ -100,6 +100,8 @@ const DEFAULT_CONFIG = {
   windowViewUrl: "./assets/rogland_clear_night_4k.webp",
   windowViewIntensity: 1,
   windowViewYawDeg: 0,
+  // Negative values pan the stars left-to-right. A full loop takes 5 minutes.
+  windowViewDriftDegPerSecond: -1.2,
 
   // Lighting. Keep these low if the model uses baked lighting.
   hemisphereIntensity: 0.9,
@@ -745,7 +747,7 @@ function setupLights(room, screenObject) {
 // ── Wall poster gallery ──────────────────────────────────
 //
 // The bundled room has a poster collage baked into the textures of the
-// two corner walls. The 25 prints below are hung over the clean wall,
+// two corner walls. The 30 prints below are hung over the clean wall,
 // wrapping around the corner above the CRT. Everything is measured in
 // floor-normalised metres, using the wall faces found in room.glb:
 //   back wall  z = -0.3973   (x -1.53 .. -0.90)
@@ -1099,6 +1101,51 @@ function wrapTopRow(group, panel) {
   }
 }
 
+// The five `topRow` prints fill the empty slot above each column. They are
+// mounted after the normal wrap so they do not take part in it. If a print is
+// taller than the free gap, only that print is narrowed to fit; the existing
+// row never moves.
+function mountTopRow(group, panel, entries, columnCenters) {
+  if (!entries.length) return;
+
+  const prefix = `Poster_${panel.key}_`;
+  const topEdges = columnCenters.map(() => 0);
+
+  for (const mesh of group.children) {
+    if (!mesh.name.startsWith(prefix)) continue;
+    const u = panel.axis === "x" ? mesh.position.x : mesh.position.z;
+    let column = 0;
+    for (let i = 1; i < columnCenters.length; i += 1) {
+      if (Math.abs(u - columnCenters[i]) < Math.abs(u - columnCenters[column])) {
+        column = i;
+      }
+    }
+    topEdges[column] = Math.max(
+      topEdges[column],
+      mesh.position.y + mesh.geometry.parameters.height / 2
+    );
+  }
+
+  entries.forEach((entry, index) => {
+    if (index >= panel.columns.length) return;
+    const highest = topEdges[index] || panel.yRange[1];
+    const gap = Math.max(0, panel.yRange[1] - highest - panel.rowGap);
+    const ratio = entry.poster.h / entry.poster.w;
+    const width = Math.min(panel.columns[index], gap / ratio);
+    if (width < 0.04) return;
+    const height = width * ratio;
+    mountPoster(
+      group,
+      panel,
+      entry,
+      width,
+      height,
+      columnCenters[index],
+      panel.yRange[1] - height / 2
+    );
+  });
+}
+
 function buildPosterGallery(entries) {
   if (!CONFIG.addPosterGallery || !entries.length) return null;
 
@@ -1111,10 +1158,12 @@ function buildPosterGallery(entries) {
   const featureEntry = entries.find(
     ({ poster }) => poster.title === FEATURED_POSTER
   );
-  const regularEntries = featureEntry
-    ? entries.filter((entry) => entry !== featureEntry)
-    : entries;
+  const topRowEntries = entries.filter(({ poster }) => poster.topRow === true);
+  const regularEntries = entries.filter(
+    (entry) => entry !== featureEntry && entry.poster.topRow !== true
+  );
   let cursor = 0;
+  let topRowCursor = 0;
 
   for (const panel of POSTER_PANELS) {
     const panelEntries = regularEntries.slice(cursor, cursor + panel.count);
@@ -1158,6 +1207,14 @@ function buildPosterGallery(entries) {
     }
 
     wrapTopRow(group, panel);
+
+    const topCount = panel.columns.length;
+    const panelTopEntries = topRowEntries.slice(
+      topRowCursor,
+      topRowCursor + topCount
+    );
+    topRowCursor += topCount;
+    mountTopRow(group, panel, panelTopEntries, columnCenters);
   }
 
   if (featureEntry && !group.children.some((child) => child.name.includes(FEATURED_POSTER.replace(/\s+/g, "_")))) {
@@ -1339,6 +1396,20 @@ function tick(now) {
     new THREE.Euler(STATE.pitch, STATE.yaw, 0, "YXZ")
   );
   camera.quaternion.copy(STATE.baseQuaternion).multiply(lookQuaternion);
+
+  // Drift the equirectangular night sky horizontally. Wrapping at 2π keeps
+  // the motion seamless; reducing motion leaves the stars fixed.
+  if (
+    STATE.windowViewActive &&
+    !STATE.reducedMotion &&
+    CONFIG.windowViewDriftDegPerSecond
+  ) {
+    const turn = Math.PI * 2;
+    const drift =
+      THREE.MathUtils.degToRad(CONFIG.windowViewDriftDegPerSecond) * delta;
+    STATE.scene.backgroundRotation.y =
+      ((STATE.scene.backgroundRotation.y + drift) % turn + turn) % turn;
+  }
 
   if (STATE.tvLight) {
     STATE.tvLight.intensity +=

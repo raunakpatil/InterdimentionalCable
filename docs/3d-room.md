@@ -58,7 +58,7 @@ module loads:
     tvLightOnIntensity: 1.6,
   };
 </script>
-<script type="module" src="three-scene.js?v=88"></script>
+<script type="module" src="three-scene.js?v=89"></script>
 ```
 
 | Key | Default | Purpose |
@@ -81,14 +81,15 @@ module loads:
 | `addCeiling` | `true` | Close open-top models with a painted ceiling |
 | `ceilingColor` | `#ffffff` | Ceiling paint colour |
 | `ceilingEmissiveIntensity` | `0.3` | Self-light; fades to 0 when the TV is on |
-| `addPosterGallery` | `true` | Mount the 25-print wall gallery |
+| `addPosterGallery` | `true` | Mount the 30-print wall gallery |
 | `cleanWallCollage` | `true` | Paint the baked-in wall collage off at runtime |
 | `posterWallOffset` | `0.005` | Gap between wall face and poster plane (metres) |
 | `removeHangingMobile` | `true` | Remove the model's paper-airplane mobile |
 | `addWindowView` | `true` | Show the 360° panorama through the windows |
 | `windowViewUrl` | `./assets/rogland_clear_night_4k.webp` | Equirectangular night-sky image (2:1) |
 | `windowViewIntensity` | `1` | Background brightness |
-| `windowViewYawDeg` | `0` | Fixed compass angle of the sky |
+| `windowViewYawDeg` | `0` | Starting compass angle of the sky |
+| `windowViewDriftDegPerSecond` | `-1.2` | Sky drift; negative pans the stars left-to-right (300 s loop) |
 | `hemisphereIntensity` | `0.9` | Fill light; fades to 0 when the TV is on |
 | `windowLightIntensity` | `1.2` | Sun through the window; fades to 0 when the TV is on |
 | `tvLightOnIntensity` | `1.6` | CRT point light; the only light while the TV is on |
@@ -173,21 +174,27 @@ and KTX2 loaders. If the model is in centimetres or is dollhouse-sized, set
 
 ## Wall poster gallery
 
-The two corner walls carry 25 posters from `assets/posters/`, listed in
-`posters.js` as `window.ROOM_POSTERS` (native-resolution WebP, 4.10 MiB for the
+The two corner walls carry 30 posters from `assets/posters/`, listed in
+`posters.js` as `window.ROOM_POSTERS` (native-resolution WebP, 5.47 MiB for the
 whole set).
 
-- **Back wall:** 14 regular prints in three columns, plus the featured
-  **Pop Transformation** print at the bottom of the right column. The regular
-  columns are 0.20 m, 0.20 m and 0.18 m wide; the feature is 0.20 m wide.
-- **Left wall:** 10 regular prints in two columns, 0.21 m wide.
+- **Back wall:** 14 regular prints in three columns, three top-row prints, plus
+  the featured **Pop Transformation** print at the bottom of the right column.
+  The regular columns are 0.20 m, 0.20 m and 0.18 m wide; the feature is 0.20 m
+  wide.
+- **Left wall:** 10 regular prints and two top-row prints in two columns,
+  0.21 m wide.
 - The panels span `y 1.36..2.83`, filling the usable wall from just above the
   CRT to the ceiling.
-- The highest print in each column is wrapped to the bottom of that same
-  column, below its lowest print. Every other print keeps its existing
+- The highest original print in each column is wrapped to the bottom of that
+  same column, below its lowest print. Every other print keeps its existing
   position, so the top of each column is left open. Because the bottom row
   already sits just above the CRT, the wrapped prints sit low on the wall and
   can be partly hidden by the TV or desk from the fixed seat.
+- The five entries tagged `topRow: true` fill those open tops, one per column,
+  so each column has a print at the ceiling again. A top-row print is narrowed
+  slightly only when the free gap is shorter than the print; the original
+  prints never move to make room.
 - The featured print stays at the bottom of the back-right column, closest to
   the seat and fully visible above the CRT.
 
@@ -213,19 +220,28 @@ window.ROOM_POSTERS = [
 ```
 
 `w` and `h` are the source pixel dimensions; the layout uses their ratio so
-prints are never distorted. Keep the manifest at 25 entries for the current
-14 + 1 + 10 layout, with the feature named **Pop Transformation**. Posters are
-downloaded before the 3D room activates, so they are covered by the boot screen
-and never pop in over a finished frame.
+prints are never distorted. Keep the 25 original entries in their current order
+and append the `topRow: true` entries at the end. The current layout is
+14 regular + 1 feature + 10 regular + 5 top-row = 30 prints, with the feature
+named **Pop Transformation**. Posters are downloaded before the 3D room
+activates, so they are covered by the boot screen and never pop in over a
+finished frame.
 
 ---
 
 ## Window view
 
 The room is placed inside a 360° desert-night panorama. The image is loaded as
-a fixed equirectangular `scene.background`, and the window glass is transparent,
-so both windows look out onto the same sky. The sky does **not** rotate or
-orbit; `scene.backgroundRotation` stays at zero.
+an equirectangular `scene.background`, and the window glass is transparent, so
+both windows look out onto the same sky.
+
+The sky drifts slowly and seamlessly from left to right. Every frame adds
+`windowViewDriftDegPerSecond` (default `-1.2°`) to
+`scene.backgroundRotation.y`, so the stars pan across the windows and a full
+loop takes five minutes. The angle is wrapped modulo 2π, so the wrap is
+invisible. Set the value to `0` to freeze the sky, or use a positive value to
+pan the stars the other way. Visitors with `prefers-reduced-motion: reduce` get
+a fixed sky.
 
 The shipped asset is `assets/rogland_clear_night_4k.webp` (4096×2048, 2.96 MiB),
 converted from an 8192×4096 source that stays out of git. It is contrast- and
