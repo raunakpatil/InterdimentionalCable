@@ -100,8 +100,8 @@ const DEFAULT_CONFIG = {
   windowViewUrl: "./assets/rogland_clear_night_4k.webp",
   windowViewIntensity: 1,
   windowViewYawDeg: 0,
-  // Negative values pan the stars left-to-right. A full loop takes 5 minutes.
-  windowViewDriftDegPerSecond: -1.2,
+  // Negative values pan the stars left-to-right. A full loop takes 7.5 minutes.
+  windowViewDriftDegPerSecond: -0.8,
 
   // Lighting. Keep these low if the model uses baked lighting.
   hemisphereIntensity: 0.9,

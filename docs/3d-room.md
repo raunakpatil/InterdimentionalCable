@@ -58,7 +58,7 @@ module loads:
     tvLightOnIntensity: 1.6,
   };
 </script>
-<script type="module" src="three-scene.js?v=89"></script>
+<script type="module" src="three-scene.js?v=90"></script>
 ```
 
 | Key | Default | Purpose |
@@ -89,7 +89,7 @@ module loads:
 | `windowViewUrl` | `./assets/rogland_clear_night_4k.webp` | Equirectangular night-sky image (2:1) |
 | `windowViewIntensity` | `1` | Background brightness |
 | `windowViewYawDeg` | `0` | Starting compass angle of the sky |
-| `windowViewDriftDegPerSecond` | `-1.2` | Sky drift; negative pans the stars left-to-right (300 s loop) |
+| `windowViewDriftDegPerSecond` | `-0.8` | Sky drift; negative pans the stars left-to-right (450 s loop) |
 | `hemisphereIntensity` | `0.9` | Fill light; fades to 0 when the TV is on |
 | `windowLightIntensity` | `1.2` | Sun through the window; fades to 0 when the TV is on |
 | `tvLightOnIntensity` | `1.6` | CRT point light; the only light while the TV is on |
@@ -236,9 +236,9 @@ an equirectangular `scene.background`, and the window glass is transparent, so
 both windows look out onto the same sky.
 
 The sky drifts slowly and seamlessly from left to right. Every frame adds
-`windowViewDriftDegPerSecond` (default `-1.2°`) to
+`windowViewDriftDegPerSecond` (default `-0.8°`) to
 `scene.backgroundRotation.y`, so the stars pan across the windows and a full
-loop takes five minutes. The angle is wrapped modulo 2π, so the wrap is
+loop takes 7.5 minutes. The angle is wrapped modulo 2π, so the wrap is
 invisible. Set the value to `0` to freeze the sky, or use a positive value to
 pan the stars the other way. Visitors with `prefers-reduced-motion: reduce` get
 a fixed sky.

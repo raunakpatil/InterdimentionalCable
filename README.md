@@ -68,8 +68,8 @@ looks around a little. There is no 2D/3D toggle, saved viewing preference,
   out at runtime, the paper-airplane mobile is removed, and the prints load
   behind the boot screen so nothing pops in.
 - Both windows look onto a 360° desert night sky that drifts slowly from left to
-  right in a seamless five-minute loop (fixed under reduced motion). The glass
-  has only a faint tint so it does not haze the view.
+  right in a seamless seven-and-a-half-minute loop (fixed under reduced motion).
+  The glass has only a faint tint so it does not haze the view.
 - Turning the TV on fades the room, window, image-based and ceiling lighting to
   zero. The CRT is then the only light source in the room.
 - A minimal **INTERDIMENSIONAL TV** boot screen covers the hidden room while the
