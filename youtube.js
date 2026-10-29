@@ -24,6 +24,26 @@ let stuckTimer = null;
 let isCueingFallbackPlaylist = false;
 let isCueingFallbackVideo = false;
 let hasShownApiError = false;
+let captionsEnabled = false;
+let pendingPlayerResume = null;
+let isRebuildingPlayer = false;
+
+// Shared embed options. `mute: 1` is crucial: it lets the browser start
+// playback without a gesture; the app unmutes once the picture is running.
+const PLAYER_VARS = {
+  autoplay: 1,
+  mute: 1,
+  controls: 0,
+  disablekb: 1,
+  fs: 0,
+  iv_load_policy: 3,
+  modestbranding: 1,
+  rel: 0,
+  showinfo: 0,
+  cc_load_policy: 0,
+  playsinline: 1,
+  enablejsapi: 1,
+};
 
 // ── Initialize YouTube IFrame API ────────────────────────
 function initYouTubePlayer() {
@@ -32,39 +52,67 @@ function initYouTubePlayer() {
   document.head.appendChild(tag);
 }
 
-// Called by YouTube API when script loads
-window.onYouTubeIframeAPIReady = function () {
-  player = new YT.Player("yt-player", {
+function buildPlayer(target, extraVars, videoId) {
+  const playerVars = Object.assign({}, PLAYER_VARS, extraVars, {
+    origin: window.location.origin,
+  });
+  const config = {
     width: "100%",
     height: "100%",
-    playerVars: {
-      autoplay: 1,
-      mute: 1, // Crucial: forces browser to allow autoplay, we unmute right after it starts
-      controls: 0,
-      disablekb: 1,
-      fs: 0,
-      iv_load_policy: 3,
-      modestbranding: 1,
-      rel: 0,
-      showinfo: 0,
-      playsinline: 1,
-      enablejsapi: 1,
-      origin: window.location.origin,
-    },
+    playerVars,
     events: {
       onReady: onPlayerReady,
       onStateChange: onPlayerStateChange,
+      onApiChange: onPlayerApiChange,
       onError: onPlayerError,
     },
-  });
+  };
+  if (videoId) config.videoId = videoId;
+  return new YT.Player(target, config);
+}
+
+// Called by YouTube API when script loads
+window.onYouTubeIframeAPIReady = function () {
+  player = buildPlayer("yt-player");
 };
 
-function onPlayerReady() {
+function onPlayerReady(event) {
+  player = (event && event.target) || player;
   playerReady = true;
   player.setVolume(80);
 
+  // Captions start off on every load, even if the browser remembered them.
+  captionsEnabled = false;
+  setCaptionButtonState(false);
+  try {
+    player.setOption("captions", "track", {});
+  } catch (error) {
+    // The captions module is not loaded until the viewer asks for it.
+  }
+
   // The user may have powered the set off while the API was loading.
-  if (typeof isPoweredOn !== "undefined" && !isPoweredOn) return;
+  if (typeof isPoweredOn !== "undefined" && !isPoweredOn) {
+    pendingPlayerResume = null;
+    isRebuildingPlayer = false;
+    return;
+  }
+
+  // The player was rebuilt to clear a stale caption cue. Resume the same
+  // broadcast at the same position instead of picking a new video.
+  if (pendingPlayerResume) {
+    const resume = pendingPlayerResume;
+    pendingPlayerResume = null;
+    player.setVolume(resume.volume);
+    if (resume.startTime > 0.5) {
+      try {
+        player.seekTo(resume.startTime, true);
+      } catch (error) {
+        // The constructor's `start` value already covers the position.
+      }
+    }
+    player.playVideo();
+    return;
+  }
 
   showStaticOverlay();
   startStaticSound();
@@ -72,13 +120,151 @@ function onPlayerReady() {
 
   // Failsafe: if the user clicks the TV, force play
   const blocker = document.getElementById("player-blocker");
-  if (blocker) {
+  if (blocker && !blocker.dataset.playBound) {
+    blocker.dataset.playBound = "1";
     blocker.addEventListener("click", () => {
       if (player && typeof player.playVideo === "function") {
         player.playVideo();
       }
     });
   }
+}
+
+function rebuildPlayerForCaptions() {
+  if (!player || !playerReady || typeof player.destroy !== "function") return;
+  if (typeof isPoweredOn !== "undefined" && !isPoweredOn) return;
+  if (typeof player.getVideoData !== "function") return;
+
+  const video = player.getVideoData();
+  if (!video || !video.video_id) return;
+
+  const resume = {
+    videoId: video.video_id,
+    startTime: Math.max(0, player.getCurrentTime() || 0),
+    volume: typeof player.getVolume === "function" ? player.getVolume() : 80,
+    muted: typeof player.isMuted === "function" ? player.isMuted() : false,
+  };
+
+  pendingPlayerResume = resume;
+  isRebuildingPlayer = true;
+  playerReady = false;
+
+  try {
+    player.destroy();
+  } catch (error) {
+    console.warn("Could not rebuild the player:", error);
+    pendingPlayerResume = null;
+    isRebuildingPlayer = false;
+    playerReady = true;
+    return;
+  }
+
+  // `destroy()` removes the iframe. Give the new player a fresh host inside
+  // the same TV content so all existing layout rules still apply.
+  const host = document.createElement("div");
+  host.id = "yt-player";
+  const parent = document.getElementById("tv-content");
+  (parent || document.body).appendChild(host);
+
+  player = buildPlayer(host, {
+    start: Math.floor(resume.startTime),
+  }, resume.videoId);
+}
+
+// ── Captions ─────────────────────────────────────────────
+function availableCaptionTracks() {
+  if (!player || typeof player.getOption !== "function") return [];
+  try {
+    return player.getOption("captions", "tracklist") || [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function preferredCaptionTrack(tracks) {
+  const language = (track) => (track.languageCode || "").toLowerCase();
+  return (
+    tracks.find((track) => language(track).startsWith("en")) ||
+    tracks.find((track) => track.is_default) ||
+    tracks[0] ||
+    null
+  );
+}
+
+function applyCaptionTrack() {
+  if (!captionsEnabled || !player) return;
+  // Some auto-generated tracks are not listed in `tracklist` but can still
+  // be selected by language, so fall back to English rather than giving up.
+  const track =
+    preferredCaptionTrack(availableCaptionTracks()) || { languageCode: "en" };
+  try {
+    player.setOption("captions", "track", track);
+  } catch (error) {
+    console.warn("Could not enable captions:", error);
+  }
+}
+
+function syncCaptions() {
+  if (!captionsEnabled || !player) return;
+  if (typeof player.loadModule === "function") {
+    player.loadModule("captions");
+  }
+  applyCaptionTrack();
+}
+
+function toggleCaptions() {
+  if (!isPoweredOn || !player || !playerReady || isRebuildingPlayer) return;
+  const wasEnabled = captionsEnabled;
+  captionsEnabled = !captionsEnabled;
+  setCaptionButtonState(captionsEnabled);
+
+  if (captionsEnabled) {
+    syncCaptions();
+    showCaptionsOSD(true);
+  } else {
+    try {
+      player.setOption("captions", "track", {});
+    } catch (error) {
+      console.warn("Could not disable captions:", error);
+    }
+    showCaptionsOSD(false);
+
+    // YouTube's captions module leaves the last cue frozen on screen when
+    // captions are switched off through the API. Rebuild the player around
+    // the same video to guarantee a clean off.
+    if (wasEnabled) {
+      showStaticOverlay();
+      startStaticSound();
+      rebuildPlayerForCaptions();
+    }
+  }
+}
+
+function onPlayerApiChange() {
+  if (captionsEnabled) applyCaptionTrack();
+}
+
+// ── Stuck-load watchdog ──────────────────────────────────
+// A cue can fail silently or a stream can stall in BUFFERING forever,
+// leaving the set on static. If no picture arrives in time, change channel.
+const LOAD_TIMEOUT_MS = 9000;
+
+function armStuckTimer() {
+  clearTimeout(stuckTimer);
+  stuckTimer = setTimeout(() => {
+    stuckTimer = null;
+    if (typeof isPoweredOn !== "undefined" && !isPoweredOn) return;
+    console.warn("Video took too long to start, skipping...");
+    isCueingFallbackPlaylist = false;
+    isCueingFallbackVideo = false;
+    isPlayingCommercial = false;
+    playNextVideo();
+  }, LOAD_TIMEOUT_MS);
+}
+
+function clearStuckTimer() {
+  clearTimeout(stuckTimer);
+  stuckTimer = null;
 }
 
 function onPlayerStateChange(event) {
@@ -93,6 +279,16 @@ function onPlayerStateChange(event) {
   if (playbackMonitor) {
     clearInterval(playbackMonitor);
     playbackMonitor = null;
+  }
+
+  if (event.data === YT.PlayerState.PAUSED) {
+    // Broadcast TV cannot be paused. This also clears YouTube's large
+    // play/pause overlay if a stray click or focus change paused the video.
+    setTimeout(() => {
+      if (player && isPoweredOn && typeof player.playVideo === "function") {
+        player.playVideo();
+      }
+    }, 250);
   }
 
   if (event.data === YT.PlayerState.ENDED) {
@@ -148,7 +344,18 @@ function onPlayerStateChange(event) {
     }, 500);
   }
 
+  if (event.data === YT.PlayerState.BUFFERING && !stuckTimer) {
+    armStuckTimer();
+  }
+
   if (event.data === YT.PlayerState.PLAYING) {
+    clearStuckTimer();
+    // Re-apply the caption preference when a new video starts.
+    if (captionsEnabled) {
+      applyCaptionTrack();
+      setTimeout(applyCaptionTrack, 600);
+    }
+
     // Start monitoring playback to cut the video right before the end
     playbackMonitor = setInterval(() => {
       if (player && typeof player.getDuration === "function" && typeof player.getCurrentTime === "function") {
@@ -165,36 +372,50 @@ function onPlayerStateChange(event) {
       }
     }, 500);
 
-    // Video started, wait 4 seconds before clearing static and unmuting to hide YT UI
-    setTimeout(() => {
-      if (typeof isPoweredOn !== "undefined" && !isPoweredOn) return; // Abort if TV is turned off during the wait
-      hideStaticOverlay();
-      stopStaticSound();
-      if (!isMuted) {
-        player.unMute();
-      }
-      
-      // Trigger VHS lock-in distortion effect to make the video snap into place
-      const tvScreen = document.getElementById("tv-screen");
-      if (tvScreen) {
-        tvScreen.classList.remove("vhs-lock");
-        // trigger reflow
-        void tvScreen.offsetWidth;
-        tvScreen.classList.add("vhs-lock");
-      }
-    }, 4000);
+    if (isRebuildingPlayer) {
+      // CC-off rebuild: keep the static mask brief so the picture returns
+      // immediately, then restore audio.
+      isRebuildingPlayer = false;
+      setTimeout(() => {
+        if (typeof isPoweredOn !== "undefined" && !isPoweredOn) return;
+        hideStaticOverlay();
+        stopStaticSound();
+        if (!isMuted && player && typeof player.unMute === "function") {
+          player.unMute();
+        }
+      }, 350);
+    } else {
+      // Video started; hold the static briefly to hide the YT title UI
+      setTimeout(() => {
+        if (typeof isPoweredOn !== "undefined" && !isPoweredOn) return; // Abort if TV is turned off during the wait
+        hideStaticOverlay();
+        stopStaticSound();
+        if (!isMuted) {
+          player.unMute();
+        }
+        
+        // Trigger VHS lock-in distortion effect to make the video snap into place
+        const tvScreen = document.getElementById("tv-screen");
+        if (tvScreen) {
+          tvScreen.classList.remove("vhs-lock");
+          // trigger reflow
+          void tvScreen.offsetWidth;
+          tvScreen.classList.add("vhs-lock");
+        }
+      }, 1500);
+    }
   }
 
-  if (event.data === YT.PlayerState.BUFFERING) {
-    // Optionally show subtle loading state
-  }
 }
 
 function onPlayerError(event) {
   // Video can't be embedded or is unavailable — skip
+  clearStuckTimer();
   console.warn("Video error (code " + event.data + "), skipping...");
   isCueingFallbackPlaylist = false;
   isCueingFallbackVideo = false;
+  pendingPlayerResume = null;
+  isRebuildingPlayer = false;
   setTimeout(() => {
     if (isPlayingCommercial) {
       isPlayingCommercial = false;
@@ -332,6 +553,7 @@ async function playNextVideo() {
   startStaticSound();
 
   // Pure vault mode (API dependency removed)
+  armStuckTimer();
   playFallbackVaultItem();
 }
 

@@ -246,6 +246,30 @@ function showMuteOSD(muted) {
   }, 1500);
 }
 
+// ── Captions ─────────────────────────────────────────────
+function setCaptionButtonState(enabled) {
+  const btn = document.getElementById("btn-cc");
+  if (!btn) return;
+  btn.classList.toggle("is-on", enabled);
+  btn.setAttribute("aria-pressed", String(enabled));
+}
+
+function showCaptionsOSD(enabled, unavailable = false) {
+  const osd = document.getElementById("channel-osd");
+  const message = unavailable
+    ? "NO CAPTIONS"
+    : enabled
+      ? "💬 CC ON"
+      : "💬 CC OFF";
+  osd.innerHTML = `<div class="osd-channel-num">${message}</div>`;
+  osd.classList.add("visible");
+
+  clearTimeout(channelOSDTimeout);
+  channelOSDTimeout = setTimeout(() => {
+    osd.classList.remove("visible");
+  }, 1500);
+}
+
 // ── Remote Interaction Helper ────────────────────────────
 function triggerRemoteInteraction() {
   if (typeof playSound === "function") playSound("click");
@@ -273,6 +297,8 @@ const KEYBINDINGS = {
   M: () => toggleMute(),
   s: () => toggleMute(),
   S: () => toggleMute(),
+  c: () => toggleCaptions(),
+  C: () => toggleCaptions(),
   ArrowUp: () => adjustVolume(10),
   ArrowDown: () => adjustVolume(-10),
   Up: () => adjustVolume(10),
@@ -432,6 +458,7 @@ document.addEventListener("DOMContentLoaded", () => {
   btn("btn-ch-up", () => changeChannel(1));
   btn("btn-ch-down", () => changeChannel(-1));
   btn("btn-mute", toggleMute);
+  btn("btn-cc", toggleCaptions);
   btn("btn-vol-up", () => adjustVolume(10));
   btn("btn-vol-down", () => adjustVolume(-10));
 

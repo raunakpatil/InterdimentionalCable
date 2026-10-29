@@ -151,6 +151,8 @@ if (query.get("fov")) {
 }
 
 const STATE = {
+  glassMaterials: [],
+  curtainTime: { value: 0 },
   active: false,
   deferred: false,
   loading: false,
@@ -824,9 +826,64 @@ function softenWindowGlass(room) {
       material.envMapIntensity = 0;
       material.depthWrite = false;
       material.needsUpdate = true;
+      STATE.glassMaterials.push(material);
     }
   });
   log("Window glass softened");
+}
+
+// A slow, faint sway for the two curtains, done in the vertex shader so
+// the mesh stays untouched. Movement grows toward the hem; the rod line
+// stays put. Each curtain gets its own phase so they don't move in step.
+function animateCurtains(room) {
+  room.updateMatrixWorld(true);
+  let index = 0;
+  room.traverse((object) => {
+    if (!object.isMesh || !/^Curtain0\d_low_/i.test(object.name)) return;
+    const box = new THREE.Box3().setFromObject(object);
+    const size = box.getSize(new THREE.Vector3());
+    const inverse = object.matrixWorld.clone().invert();
+    const toLocal = (v) => v.clone().transformDirection(inverse);
+    const scale = new THREE.Vector3().setFromMatrixScale(object.matrixWorld).x || 1;
+    const depthAxis = size.x < size.z ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 0, 1);
+    const sideAxis = size.x < size.z ? new THREE.Vector3(0, 0, 1) : new THREE.Vector3(1, 0, 0);
+    const up = toLocal(new THREE.Vector3(0, 1, 0));
+    const topLocal = box.max.clone().applyMatrix4(inverse).dot(up);
+    const uniforms = {
+      uCurtainTime: STATE.curtainTime,
+      uCurtainUp: { value: up },
+      uCurtainDepth: { value: toLocal(depthAxis) },
+      uCurtainSide: { value: toLocal(sideAxis) },
+      uCurtainTop: { value: topLocal },
+      uCurtainLength: { value: size.y / scale },
+      uCurtainScale: { value: scale },
+      uCurtainPhase: { value: index * 2.3 },
+    };
+    index += 1;
+    const material = object.material.clone();
+    material.onBeforeCompile = (shader) => {
+      Object.assign(shader.uniforms, uniforms);
+      shader.vertexShader = shader.vertexShader
+        .replace(
+          "#include <common>",
+          `#include <common>
+uniform float uCurtainTime, uCurtainTop, uCurtainLength, uCurtainScale, uCurtainPhase;
+uniform vec3 uCurtainUp, uCurtainDepth, uCurtainSide;`
+        )
+        .replace(
+          "#include <begin_vertex>",
+          `#include <begin_vertex>
+float hang = clamp((uCurtainTop - dot(transformed, uCurtainUp)) / uCurtainLength, 0.0, 1.0);
+float across = dot(transformed, uCurtainSide) * uCurtainScale;
+float t = uCurtainTime + uCurtainPhase;
+float wave = sin(t * 0.7 + across * 3.0) * 0.6 + sin(t * 1.15 + across * 7.0) * 0.4;
+transformed += uCurtainDepth * (hang * hang * wave * 0.012 / uCurtainScale);
+transformed += uCurtainSide * (hang * hang * sin(t * 0.5) * 0.006 / uCurtainScale);`
+        );
+    };
+    object.material = material;
+  });
+  if (index) log("Curtain sway enabled:", index, "meshes");
 }
 
 // Pixel rectangles that contain the old collage in the two 1024×1024
@@ -1247,6 +1304,7 @@ function activate(gltf, url, posterEntries = [], windowView = null) {
   cleanWallCollage(room);
   removeHangingMobile(room);
   softenWindowGlass(room);
+  if (!STATE.reducedMotion) animateCurtains(room);
 
   const view = computeCameraView(room);
   STATE.seatEye = view.eye;
@@ -1420,6 +1478,12 @@ function tick(now) {
   // TV on = room lights off. The CRT becomes the only light source, with
   // the hemisphere, window and image-based lighting fading to zero.
   const roomLightMix = 1 - STATE.powerMix;
+  STATE.curtainTime.value = now / 1000;
+  // The glass picks up the CRT glow as a pale sheen; hide it with the lights.
+  for (const material of STATE.glassMaterials) {
+    material.opacity = 0.06 * roomLightMix;
+    material.visible = material.opacity > 0.002;
+  }
   if (STATE.scene.environment) {
     const target = CONFIG.environmentIntensity * roomLightMix;
     STATE.scene.environmentIntensity +=

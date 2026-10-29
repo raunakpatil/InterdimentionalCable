@@ -175,7 +175,9 @@ body.env-3d #mobile-swipe-hint {
   overflow: hidden;
   background: #000;
   border-radius: var(--crt-curve, 12px);
-  pointer-events: none;
+  /* CSS3DRenderer writes `pointer-events: auto` inline; keep the iframe
+     unreachable so YouTube's hover play/pause overlay never appears. */
+  pointer-events: none !important;
   container-type: inline-size;
   /* A hint of glass so the screen sits inside the model. */
   box-shadow:
@@ -220,6 +222,7 @@ body.env-3d .tv-css3d-viewport #yt-player {
   min-height: 0;
   aspect-ratio: 16 / 9;
   transform: translate(-50%, -50%);
+  pointer-events: none !important;
 }
 
 /* OSD sizing is driven by viewport widths in 2D. Inside the

@@ -684,6 +684,26 @@ body {
   background: rgba(100, 90, 80, 0.9);
 }
 
+.cc-label {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+#btn-cc.is-on {
+  background: rgba(0, 125, 160, 0.8);
+  color: #ffffff;
+  border-color: rgba(0, 210, 255, 0.45);
+  box-shadow:
+    0 0 12px rgba(0, 200, 255, 0.35),
+    inset 0 0 8px rgba(0, 200, 255, 0.18);
+}
+
+#btn-cc.is-on:hover {
+  background: rgba(0, 155, 195, 0.9);
+  box-shadow: 0 0 16px rgba(0, 210, 255, 0.45);
+}
+
 #btn-power {
   background: rgba(180, 40, 40, 0.7);
   width: 40px;

@@ -171,13 +171,18 @@
       <button class="remote-btn" id="btn-vol-up" title="Volume Up (↑)">+</button>
     </div>
 
-    <button class="remote-btn" id="btn-mute" title="Mute (M)" style="margin-top: 6px; display: flex; align-items: center; justify-content: center;">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-        <line x1="23" y1="9" x2="17" y2="15"></line>
-        <line x1="17" y1="9" x2="23" y2="15"></line>
-      </svg>
-    </button>
+    <div class="remote-row">
+      <button class="remote-btn" id="btn-mute" title="Mute (M)" style="display: flex; align-items: center; justify-content: center;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <line x1="23" y1="9" x2="17" y2="15"></line>
+          <line x1="17" y1="9" x2="23" y2="15"></line>
+        </svg>
+      </button>
+      <button class="remote-btn" id="btn-cc" title="Captions (C)" aria-pressed="false" style="display: flex; align-items: center; justify-content: center;">
+        <span class="cc-label">CC</span>
+      </button>
+    </div>
   </div>
 
   <!-- ═══════════════════════════════════════════════════════ -->

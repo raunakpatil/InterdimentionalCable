@@ -4,7 +4,7 @@
 
 > An immersive, nostalgic analog TV simulator for surfing a chaotic, totally randomized abyss of YouTube videos.
 
-[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-IntergalacticTV-00C7B7?style=for-the-badge)](https://raunakpatil.github.io/InterdimentionalCable/)
+[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-IntergalacticTV-00C7B7?style=for-the-badge)](https://raunakpatil.com/InterdimentionalCable/)
 [![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org)
 [![CSS3](https://img.shields.io/badge/CSS3-Vanilla-1572B6?style=for-the-badge&logo=css3)](https://developer.mozilla.org)
 [![YouTube API](https://img.shields.io/badge/YouTube-IFrame_API-FF0000?style=for-the-badge&logo=youtube)](https://developers.google.com/youtube/iframe_api_reference)
@@ -19,7 +19,7 @@
 ## 📸 Demo
 
 <div align="center">
-  <h3><a href="https://raunakpatil.github.io/InterdimentionalCable/">◀️ Click Here to Watch Interdimentional Tv Live ▶️</a></h3>
+  <h3><a href="https://raunakpatil.com/InterdimentionalCable/">◀️ Click Here to Watch Interdimentional Tv Live ▶️</a></h3>
 </div>
 
 ### 📻 Ambient Power-Off State
