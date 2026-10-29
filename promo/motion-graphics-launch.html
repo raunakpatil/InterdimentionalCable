@@ -2,17 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>YouTube AI Motion Graphics — Product Launch</title>
+  <title>InterDimentional Cable TV — Motion Graphics Launch</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <!-- Fonts -->
+  <!-- Fonts: Instrument Serif, Inter, JetBrains Mono, Press Start 2P, VT323 -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700;800&family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
 
   <style>
     /* ═══════════════════════════════════════════════════════ */
-    /*  RESET & MASTER CANVAS (1920 x 1080 Fixed Stage)        */
+    /*  MASTER STAGE (1920 x 1080 Motionmaxxing Stage)         */
     /* ═══════════════════════════════════════════════════════ */
     *, *::before, *::after {
       margin: 0;
@@ -21,8 +21,8 @@
     }
 
     body {
-      background: #060709;
-      color: #f3f4f6;
+      background: #040406;
+      color: #f8fafc;
       font-family: 'Inter', -apple-system, sans-serif;
       overflow: hidden;
       width: 100vw;
@@ -36,218 +36,254 @@
       width: 1920px;
       height: 1080px;
       position: relative;
-      background: #08090c;
+      background: #06070a;
       overflow: hidden;
       transform-origin: center center;
-      box-shadow: 0 0 100px rgba(0, 0, 0, 0.9);
+      box-shadow: 0 0 140px rgba(0, 0, 0, 0.98);
     }
 
-    /* Ambient background grid */
+    /* Scanline & CRT Texture Overlays */
+    .scanlines-overlay {
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.3) 0px,
+        rgba(0, 0, 0, 0.3) 1px,
+        transparent 1px,
+        transparent 3px
+      );
+      pointer-events: none;
+      z-index: 50;
+    }
+
+    .crt-vignette {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 50%, transparent 65%, rgba(0,0,0,0.85) 100%);
+      pointer-events: none;
+      z-index: 49;
+    }
+
     .bg-grid {
       position: absolute;
       inset: 0;
       background-image: 
-        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-      background-size: 60px 60px;
+        linear-gradient(rgba(0, 255, 136, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 136, 0.035) 1px, transparent 1px);
+      background-size: 64px 64px;
       pointer-events: none;
       z-index: 1;
     }
 
-    /* Ambient lighting gradients */
-    .bg-glow-1 {
+    .bg-glow-green {
       position: absolute;
-      width: 800px;
-      height: 800px;
-      top: -200px;
+      width: 1100px;
+      height: 1100px;
+      top: -300px;
       left: -200px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(0, 240, 255, 0.12) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(0, 255, 136, 0.1) 0%, transparent 70%);
       pointer-events: none;
-      filter: blur(80px);
+      filter: blur(120px);
       z-index: 1;
     }
 
-    .bg-glow-2 {
+    .bg-glow-cyan {
       position: absolute;
-      width: 900px;
-      height: 900px;
-      bottom: -300px;
-      right: -200px;
+      width: 1200px;
+      height: 1200px;
+      bottom: -400px;
+      right: -250px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(0, 210, 255, 0.12) 0%, transparent 70%);
       pointer-events: none;
-      filter: blur(100px);
+      filter: blur(140px);
       z-index: 1;
     }
 
     /* ═══════════════════════════════════════════════════════ */
-    /*  SCENE CONTAINER                                        */
+    /*  SCENES & MEASURED TIMING (Motionmaxxing)              */
     /* ═══════════════════════════════════════════════════════ */
     .scene {
       position: absolute;
       inset: 0;
-      padding: 90px 110px;
+      padding: 80px 110px;
       display: flex;
       flex-direction: column;
       justify-content: center;
       opacity: 0;
       visibility: hidden;
       z-index: 10;
-      transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-      transform: scale(0.97);
+      transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+      transform: scale(0.96) translateY(12px);
     }
 
     .scene.active {
       opacity: 1;
       visibility: visible;
-      transform: scale(1);
+      transform: scale(1) translateY(0);
     }
 
     /* Typography Utilities */
+    .vt323 { font-family: 'VT323', monospace; }
+    .pixel { font-family: 'Press Start 2P', monospace; }
     .mono { font-family: 'JetBrains Mono', monospace; }
     .serif-italic { font-family: 'Instrument Serif', Georgia, serif; font-style: italic; }
+
+    /* Vox-Style Marker Highlight */
+    .vox-highlight {
+      background: #00ff88;
+      color: #030406 !important;
+      padding: 0 10px;
+      display: inline-block;
+      font-weight: 800;
+      border-radius: 4px;
+      box-shadow: 0 0 25px rgba(0, 255, 136, 0.4);
+    }
+
+    .vox-highlight-red {
+      background: #f43f5e;
+      color: #ffffff !important;
+      padding: 0 10px;
+      display: inline-block;
+      font-weight: 800;
+      border-radius: 4px;
+      box-shadow: 0 0 25px rgba(244, 63, 94, 0.5);
+    }
 
     .tag-badge {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 6px 16px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      gap: 10px;
+      padding: 6px 18px;
+      background: rgba(0, 255, 136, 0.08);
+      border: 1px solid rgba(0, 255, 136, 0.3);
       border-radius: 100px;
-      font-size: 14px;
-      font-weight: 600;
-      letter-spacing: 0.1em;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: #94a3b8;
+      color: #00ff88;
       width: fit-content;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
 
     .tag-badge .dot {
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background: #00f0ff;
-      box-shadow: 0 0 10px #00f0ff;
+      background: #00ff88;
+      box-shadow: 0 0 10px #00ff88;
     }
 
     .headline-huge {
-      font-size: 88px;
-      font-weight: 800;
-      line-height: 1.05;
-      letter-spacing: -0.03em;
-      margin-bottom: 24px;
+      font-size: 86px;
+      font-weight: 900;
+      line-height: 1.04;
+      letter-spacing: -0.035em;
+      margin-bottom: 18px;
     }
 
     .headline-gradient {
-      background: linear-gradient(135deg, #ffffff 30%, #94a3b8 100%);
+      background: linear-gradient(135deg, #ffffff 45%, #94a3b8 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
     .headline-cyan {
-      background: linear-gradient(135deg, #00f0ff 0%, #38bdf8 50%, #818cf8 100%);
+      background: linear-gradient(135deg, #00f0ff 0%, #38bdf8 50%, #00ff88 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
     /* ═══════════════════════════════════════════════════════ */
-    /*  SCENE 1: THE OLD WAY (AFTER EFFECTS PAIN)             */
+    /*  SCENE 1: THE ALGORITHM CRISIS (VOX COLLAGE STYLE)     */
     /* ═══════════════════════════════════════════════════════ */
-    #scene-1 .timeline-mockup {
-      margin-top: 40px;
-      background: rgba(18, 20, 26, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+    .vox-collage-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      margin-top: 36px;
+      max-width: 1400px;
+      position: relative;
+    }
+
+    .collage-card {
+      background: #11141c;
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 16px;
-      padding: 30px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-      position: relative;
-      overflow: hidden;
-      max-width: 1200px;
+      padding: 18px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      transform: rotate(var(--rot, 0deg));
+      transition: transform 0.3s ease;
     }
 
-    .timeline-track {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      padding: 14px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    .timeline-label {
-      width: 180px;
-      font-size: 15px;
-      color: #64748b;
-      font-weight: 600;
-    }
-
-    .keyframes-bar {
-      flex: 1;
-      height: 28px;
-      background: rgba(255, 255, 255, 0.03);
-      border-radius: 6px;
-      position: relative;
-      display: flex;
-      align-items: center;
-      padding: 0 10px;
-    }
-
-    .keyframe-diamond {
-      width: 12px;
-      height: 12px;
-      background: #f43f5e;
-      transform: rotate(45deg);
-      position: absolute;
-      box-shadow: 0 0 8px rgba(244, 63, 94, 0.5);
-    }
-
-    .error-toast {
-      position: absolute;
-      right: 40px;
-      top: 30px;
-      background: rgba(225, 29, 72, 0.15);
-      border: 1px solid rgba(225, 29, 72, 0.4);
-      padding: 14px 24px;
+    .collage-preview {
+      width: 100%;
+      height: 140px;
+      background: #191d28;
       border-radius: 10px;
-      color: #fda4af;
-      font-size: 16px;
-      font-weight: 600;
+      margin-bottom: 14px;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 12px;
-      animation: toastPulse 1.5s infinite;
+      justify-content: center;
+      color: #64748b;
+      gap: 8px;
     }
 
-    @keyframes toastPulse {
-      0%, 100% { opacity: 0.9; transform: scale(1); }
-      50% { opacity: 1; transform: scale(1.02); }
+    .tape-strip {
+      position: absolute;
+      top: -12px;
+      left: 30%;
+      width: 90px;
+      height: 26px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 3px;
+      transform: rotate(-3deg);
+      backdrop-filter: blur(4px);
+    }
+
+    .big-strike-banner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-5deg);
+      background: #f43f5e;
+      color: #ffffff;
+      padding: 20px 50px;
+      font-size: 34px;
+      font-weight: 900;
+      border-radius: 10px;
+      box-shadow: 0 0 60px rgba(244, 63, 94, 0.8), 0 10px 30px rgba(0,0,0,0.9);
+      z-index: 30;
+      letter-spacing: 0.05em;
     }
 
     /* ═══════════════════════════════════════════════════════ */
-    /*  SCENE 2: THE PARADIGM SHIFT                           */
+    /*  SCENE 2: REVEAL — INTERDIMENSIONAL CABLE TV           */
     /* ═══════════════════════════════════════════════════════ */
     #scene-2 {
       align-items: center;
       text-align: center;
     }
 
-    .pill-stack {
+    .pills-container {
       display: flex;
-      gap: 14px;
+      gap: 16px;
       margin-top: 36px;
       justify-content: center;
       flex-wrap: wrap;
     }
 
-    .tech-pill {
+    .motion-pill {
       background: rgba(255, 255, 255, 0.04);
       border: 1px solid rgba(255, 255, 255, 0.12);
-      padding: 12px 24px;
-      border-radius: 12px;
-      font-size: 18px;
-      font-weight: 600;
+      padding: 12px 28px;
+      border-radius: 100px;
+      font-size: 16px;
+      font-weight: 700;
       color: #e2e8f0;
       display: flex;
       align-items: center;
@@ -255,272 +291,245 @@
       backdrop-filter: blur(10px);
     }
 
-    .tech-pill.highlight {
-      background: rgba(0, 240, 255, 0.08);
-      border-color: rgba(0, 240, 255, 0.4);
-      color: #00f0ff;
+    .motion-pill.glow-pill {
+      background: rgba(0, 255, 136, 0.08);
+      border-color: rgba(0, 255, 136, 0.4);
+      color: #00ff88;
+      box-shadow: 0 0 30px rgba(0, 255, 136, 0.15);
     }
 
     /* ═══════════════════════════════════════════════════════ */
-    /*  SCENE 3: 74+ EXPLAINER BOARDS SHOWCASE                */
+    /*  SCENE 3: 3D BEDROOM SHOWCASE (MOTIONMAXXING DEPTH)    */
     /* ═══════════════════════════════════════════════════════ */
-    .boards-grid {
+    .room-stage-split {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 30px;
-      margin-top: 40px;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 50px;
+      align-items: center;
+      margin-top: 20px;
       width: 100%;
     }
 
-    .board-card {
-      background: rgba(18, 20, 28, 0.8);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 20px;
-      padding: 32px;
-      height: 480px;
-      display: flex;
-      flex-direction: column;
+    .tilted-room-frame {
       position: relative;
+      perspective: 1400px;
+    }
+
+    .room-image-card {
+      width: 100%;
+      height: 520px;
+      border-radius: 24px;
+      border: 2px solid rgba(0, 255, 136, 0.35);
       overflow: hidden;
-      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+      box-shadow: 
+        0 0 50px rgba(0, 255, 136, 0.15),
+        0 30px 70px rgba(0, 0, 0, 0.85);
+      transform: rotateY(-8deg) rotateX(4deg);
+      transition: transform 0.6s ease;
+      background: #000;
     }
 
-    .board-card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
-      font-size: 14px;
-      color: #64748b;
+    .room-image-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
-    /* Animated Bar Chart in Board 1 */
-    .chart-container {
-      flex: 1;
-      display: flex;
-      align-items: flex-end;
-      gap: 20px;
-      padding-top: 40px;
-    }
-
-    .chart-bar-group {
-      flex: 1;
+    .room-feature-list {
       display: flex;
       flex-direction: column;
+      gap: 22px;
+    }
+
+    .feature-item-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 18px;
+      background: rgba(18, 22, 30, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 20px 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .feature-icon-badge {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: rgba(0, 255, 136, 0.1);
+      border: 1px solid rgba(0, 255, 136, 0.3);
+      display: flex;
       align-items: center;
-      height: 100%;
-      justify-content: flex-end;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
     }
 
-    .chart-bar {
+    /* ═══════════════════════════════════════════════════════ */
+    /*  SCENE 4: 999 CHANNELS & MULTIVERSE RADAR              */
+    /* ═══════════════════════════════════════════════════════ */
+    .radar-showcase-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 50px;
+      align-items: center;
+      margin-top: 24px;
       width: 100%;
-      border-radius: 8px 8px 0 0;
-      transition: height 1s cubic-bezier(0.16, 1, 0.3, 1);
-      position: relative;
     }
 
-    .chart-bar.bar-1 { height: 35%; background: rgba(255, 255, 255, 0.15); }
-    .chart-bar.bar-2 { height: 60%; background: rgba(0, 240, 255, 0.4); }
-    .chart-bar.bar-3 { height: 95%; background: linear-gradient(180deg, #00f0ff 0%, #3b82f6 100%); box-shadow: 0 0 30px rgba(0, 240, 255, 0.4); }
+    .crt-monitor-box {
+      background: #000;
+      border: 2px solid rgba(0, 255, 136, 0.4);
+      border-radius: 24px;
+      padding: 36px;
+      position: relative;
+      box-shadow: 0 0 70px rgba(0, 255, 136, 0.15), inset 0 0 80px rgba(0,0,0,0.95);
+      height: 460px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+    }
 
-    .chart-label {
-      margin-top: 14px;
-      font-size: 13px;
+    .osd-corner-hud {
+      position: absolute;
+      top: 30px;
+      right: 36px;
+      text-align: right;
+    }
+
+    .live-osd-ch {
+      font-size: 56px;
+      font-weight: 700;
+      color: #ffffff;
+      text-shadow: 0 0 12px rgba(255,255,255,0.7);
+    }
+
+    .live-osd-dim {
+      font-size: 26px;
+      color: #00ffcc;
+      margin-top: 2px;
+      text-shadow: 0 0 10px rgba(0,255,204,0.6);
+    }
+
+    .live-osd-name {
+      font-size: 20px;
       color: #94a3b8;
     }
 
-    /* Animated Venn Diagram in Board 2 */
-    .venn-container {
-      flex: 1;
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .venn-circle {
-      width: 220px;
-      height: 220px;
-      border-radius: 50%;
+    .live-ad-bug {
       position: absolute;
-      mix-blend-mode: screen;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 18px;
-    }
-
-    .venn-circle.left {
-      left: 60px;
-      background: radial-gradient(circle, rgba(168, 85, 247, 0.45) 0%, rgba(168, 85, 247, 0.05) 70%);
-      border: 1px solid rgba(168, 85, 247, 0.5);
-      color: #d8b4fe;
-    }
-
-    .venn-circle.right {
-      right: 60px;
-      background: radial-gradient(circle, rgba(0, 240, 255, 0.45) 0%, rgba(0, 240, 255, 0.05) 70%);
-      border: 1px solid rgba(0, 240, 255, 0.5);
-      color: #67e8f9;
-    }
-
-    .venn-center-glow {
-      position: absolute;
-      width: 70px;
-      height: 100px;
-      background: rgba(255, 255, 255, 0.85);
-      border-radius: 50%;
-      filter: blur(12px);
-      opacity: 0.7;
-    }
-
-    /* Animated Node Tree in Board 3 */
-    .nodes-container {
-      flex: 1;
-      position: relative;
-    }
-
-    .node-item {
-      position: absolute;
-      background: #1e2230;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      padding: 10px 18px;
-      border-radius: 10px;
-      font-size: 14px;
-      font-weight: 600;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-    }
-
-    /* ═══════════════════════════════════════════════════════ */
-    /*  SCENE 4: WHISPER VOICE-SYNC                           */
-    /* ═══════════════════════════════════════════════════════ */
-    .karaoke-box {
-      background: rgba(18, 20, 28, 0.8);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 24px;
-      padding: 50px;
-      margin-top: 30px;
-      display: flex;
-      flex-direction: column;
-      gap: 30px;
-    }
-
-    .karaoke-text {
-      font-size: 44px;
-      font-weight: 700;
-      line-height: 1.4;
-      color: #475569;
-    }
-
-    .karaoke-text span.active-word {
-      color: #00f0ff;
-      text-shadow: 0 0 25px rgba(0, 240, 255, 0.6);
-      transition: color 0.15s ease;
-    }
-
-    .karaoke-text span.past-word {
-      color: #f8fafc;
-    }
-
-    /* Waveform visualizer */
-    .waveform-visualizer {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      height: 80px;
-      padding: 10px 0;
-    }
-
-    .wave-bar {
-      flex: 1;
-      background: #334155;
-      border-radius: 4px;
-      height: 10px;
-      transition: height 0.08s ease, background-color 0.08s ease;
-    }
-
-    .wave-bar.active-wave {
-      background: #00f0ff;
-      box-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
-    }
-
-    /* ═══════════════════════════════════════════════════════ */
-    /*  SCENE 5: CREATOR WEBCAM SAFE-ZONE                     */
-    /* ═══════════════════════════════════════════════════════ */
-    .studio-frame {
-      position: relative;
-      width: 100%;
-      height: 580px;
-      background: rgba(14, 16, 22, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 20px;
-      padding: 40px;
-      overflow: hidden;
-      margin-top: 30px;
-    }
-
-    .webcam-safezone {
-      position: absolute;
-      bottom: 40px;
-      right: 40px;
-      width: 480px;
-      height: 336px;
-      border: 2px dashed #00f0ff;
-      border-radius: 16px;
-      background: rgba(0, 240, 255, 0.04);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: #00f0ff;
-      gap: 12px;
-      box-shadow: 0 0 40px rgba(0, 240, 255, 0.1);
-    }
-
-    .webcam-badge {
-      background: rgba(0, 240, 255, 0.15);
+      top: 30px;
+      left: 36px;
+      background: rgba(0, 0, 0, 0.8);
+      border: 1px solid rgba(255, 255, 100, 0.6);
+      color: rgba(255, 255, 100, 0.95);
       padding: 6px 14px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 700;
+      border-radius: 6px;
+      font-size: 14px;
+      box-shadow: 0 0 15px rgba(255, 255, 100, 0.3);
+    }
+
+    .radar-circle-viz {
+      width: 100%;
+      height: 460px;
+      background: rgba(14, 18, 24, 0.85);
+      border: 1px solid rgba(0, 255, 136, 0.2);
+      border-radius: 24px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .radar-sweep-beam {
+      position: absolute;
+      width: 320px;
+      height: 320px;
+      border-radius: 50%;
+      border: 1px solid rgba(0, 255, 136, 0.3);
+      background: conic-gradient(from 0deg, rgba(0, 255, 136, 0.25) 0deg, transparent 60deg, transparent 360deg);
+      animation: radarSpin 4s linear infinite;
+    }
+
+    @keyframes radarSpin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
     }
 
     /* ═══════════════════════════════════════════════════════ */
-    /*  SCENE 6: GRAND FINALE / CALL TO ACTION                */
+    /*  SCENE 5: MOBILE NATIVE & PROCEDURAL AUDIO             */
+    /* ═══════════════════════════════════════════════════════ */
+    .mobile-audio-split {
+      display: grid;
+      grid-template-columns: 0.85fr 1.15fr;
+      gap: 50px;
+      align-items: center;
+      margin-top: 24px;
+      width: 100%;
+    }
+
+    .phone-mockups-row {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .phone-bezel {
+      width: 250px;
+      height: 500px;
+      border-radius: 36px;
+      border: 4px solid #334155;
+      background: #000;
+      overflow: hidden;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
+      position: relative;
+      transform: translateY(var(--off, 0px));
+    }
+
+    .phone-bezel img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* ═══════════════════════════════════════════════════════ */
+    /*  SCENE 6: CALL TO ACTION                               */
     /* ═══════════════════════════════════════════════════════ */
     #scene-6 {
       align-items: center;
       text-align: center;
     }
 
-    .cta-card {
-      background: linear-gradient(180deg, rgba(24, 28, 40, 0.9) 0%, rgba(12, 14, 20, 0.95) 100%);
-      border: 1px solid rgba(0, 240, 255, 0.3);
-      box-shadow: 0 0 80px rgba(0, 240, 255, 0.15), 0 25px 60px rgba(0, 0, 0, 0.8);
-      border-radius: 28px;
-      padding: 60px 80px;
-      max-width: 1000px;
-      margin-top: 30px;
+    .cta-card-epic {
+      background: linear-gradient(180deg, rgba(16, 24, 32, 0.95) 0%, rgba(8, 11, 16, 0.98) 100%);
+      border: 2px solid rgba(0, 255, 136, 0.45);
+      box-shadow: 
+        0 0 100px rgba(0, 255, 136, 0.2),
+        0 30px 90px rgba(0, 0, 0, 0.95);
+      border-radius: 30px;
+      padding: 50px 80px;
+      max-width: 1100px;
+      margin-top: 24px;
     }
 
-    .github-badge {
+    .main-cta-btn {
       display: inline-flex;
       align-items: center;
-      gap: 14px;
-      background: #ffffff;
-      color: #090a0f;
-      padding: 16px 36px;
-      border-radius: 14px;
-      font-size: 22px;
-      font-weight: 700;
-      margin-top: 30px;
-      box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
+      gap: 16px;
+      background: linear-gradient(90deg, #00ff88 0%, #00f0ff 100%);
+      color: #030406;
+      padding: 20px 48px;
+      border-radius: 18px;
+      font-size: 26px;
+      font-weight: 900;
+      margin-top: 28px;
+      box-shadow: 0 10px 40px rgba(0, 255, 136, 0.4);
     }
 
-    /* ═══════════════════════════════════════════════════════ */
-    /*  BOTTOM CONTROLS / SCRUBBER OVERLAY                    */
-    /* ═══════════════════════════════════════════════════════ */
+    /* Scrubber & HUD */
     #playback-bar {
       position: absolute;
       bottom: 0;
@@ -534,9 +543,8 @@
     #playback-fill {
       height: 100%;
       width: 0%;
-      background: linear-gradient(90deg, #00f0ff, #8b5cf6);
-      box-shadow: 0 0 10px #00f0ff;
-      transition: width 0.05s linear;
+      background: linear-gradient(90deg, #00ff88, #00f0ff);
+      box-shadow: 0 0 12px #00ff88;
     }
 
     #hud-info {
@@ -554,7 +562,7 @@
     .hud-pill {
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.1);
-      padding: 6px 14px;
+      padding: 6px 16px;
       border-radius: 100px;
     }
   </style>
@@ -562,335 +570,280 @@
 <body>
 
   <div id="stage-viewport">
+    <div class="scanlines-overlay"></div>
+    <div class="crt-vignette"></div>
     <div class="bg-grid"></div>
-    <div class="bg-glow-1"></div>
-    <div class="bg-glow-2"></div>
+    <div class="bg-glow-green"></div>
+    <div class="bg-glow-cyan"></div>
 
     <div id="hud-info" class="mono">
       <div class="hud-pill" id="hud-time">00:00.00</div>
-      <div class="hud-pill" style="color: #00f0ff;">60 FPS 1080P</div>
+      <div class="hud-pill" style="color: #00ff88;">BROADCAST RESOLUTION 1080P 60FPS</div>
     </div>
 
-    <!-- ── SCENE 1: THE PROBLEM ───────────────────────────── -->
+    <!-- ── SCENE 1: THE ALGORITHM PRISON ──────────────────── -->
     <div class="scene" id="scene-1">
-      <div class="tag-badge mono"><span class="dot" style="background:#f43f5e; box-shadow:0 0 10px #f43f5e;"></span>Legacy Motion Graphics</div>
+      <div class="tag-badge mono"><span class="dot" style="background:#f43f5e; box-shadow:0 0 10px #f43f5e;"></span>Modern Video Fatigue</div>
       <h1 class="headline-huge headline-gradient">
-        Why are you still editing<br>like it's 2005?
+        Trapped in Algorithmic Feeds?
       </h1>
-      <p style="font-size: 26px; color: #94a3b8; max-width: 900px; line-height: 1.5;">
-        Hours spent keyframing basic charts in After Effects. Bloated projects. Clunky audio syncing.
+      <p style="font-size: 26px; color: #94a3b8; max-width: 950px; line-height: 1.5;">
+        Predictable recommendation loops. Clickbait thumbnails. <span class="vox-highlight-red">Everything looks the same.</span>
       </p>
 
-      <div class="timeline-mockup">
-        <div class="error-toast mono">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          Rendering... 3 hours 42 mins remaining
+      <div class="vox-collage-grid">
+        <div class="big-strike-banner mono">BREAK THE ALGORITHM</div>
+        <div class="collage-card" style="--rot: -2deg;">
+          <div class="tape-strip"></div>
+          <div class="collage-preview mono">Recommended #01</div>
+          <div class="mono" style="font-size:14px; font-weight:700;">Predictable Feed</div>
         </div>
-        <div class="timeline-track">
-          <div class="timeline-label mono">BarChart_Comp.aep</div>
-          <div class="keyframes-bar">
-            <div class="keyframe-diamond" style="left: 10%;"></div>
-            <div class="keyframe-diamond" style="left: 35%;"></div>
-            <div class="keyframe-diamond" style="left: 60%;"></div>
-            <div class="keyframe-diamond" style="left: 85%;"></div>
-          </div>
+        <div class="collage-card" style="--rot: 3deg;">
+          <div class="tape-strip"></div>
+          <div class="collage-preview mono">Recommended #02</div>
+          <div class="mono" style="font-size:14px; font-weight:700;">Clickbait Loop</div>
         </div>
-        <div class="timeline-track">
-          <div class="timeline-label mono">Venn_Diagram_v12</div>
-          <div class="keyframes-bar">
-            <div class="keyframe-diamond" style="left: 20%;"></div>
-            <div class="keyframe-diamond" style="left: 45%;"></div>
-            <div class="keyframe-diamond" style="left: 70%;"></div>
-          </div>
+        <div class="collage-card" style="--rot: -1.5deg;">
+          <div class="tape-strip"></div>
+          <div class="collage-preview mono">Recommended #03</div>
+          <div class="mono" style="font-size:14px; font-weight:700;">Autoplay Trap</div>
         </div>
-        <div class="timeline-track" style="border-bottom:none;">
-          <div class="timeline-label mono">Voice_Sync_Final</div>
-          <div class="keyframes-bar" style="background: rgba(244, 63, 94, 0.1);">
-            <div class="keyframe-diamond" style="left: 5%;"></div>
-            <div class="keyframe-diamond" style="left: 25%;"></div>
-            <div class="keyframe-diamond" style="left: 55%;"></div>
-            <div class="keyframe-diamond" style="left: 80%;"></div>
-          </div>
+        <div class="collage-card" style="--rot: 2deg;">
+          <div class="tape-strip"></div>
+          <div class="collage-preview mono">Recommended #04</div>
+          <div class="mono" style="font-size:14px; font-weight:700;">Endless Scroll</div>
         </div>
       </div>
     </div>
 
-    <!-- ── SCENE 2: THE PARADIGM SHIFT ───────────────────── -->
+    <!-- ── SCENE 2: INTERDIMENSIONAL TV REVEAL ────────────── -->
     <div class="scene" id="scene-2">
-      <div class="tag-badge mono"><span class="dot"></span>The Open-Source Shift</div>
-      <h1 class="headline-huge headline-cyan" style="font-size: 102px; margin-bottom: 12px;">
-        YouTube AI Motion Graphics
+      <div class="tag-badge mono"><span class="dot"></span>Pure Broadcast Chaos</div>
+      <h1 class="headline-huge headline-cyan" style="font-size: 98px; margin-bottom: 12px;">
+        InterDimentional Cable TV
       </h1>
-      <p class="serif-italic" style="font-size: 42px; color: #cbd5e1; margin-bottom: 20px;">
-        An automated, code-first motion graphics toolkit for creators.
+      <p class="serif-italic" style="font-size: 44px; color: #cbd5e1; margin-bottom: 18px;">
+        Surfing the chaotic abyss of alternate realities.
       </p>
-      <p style="font-size: 24px; color: #64748b; max-width: 800px; line-height: 1.6;">
-        Build broadcast-grade explainer boards with web standards, automated speech timing, and AI prompts.
+      <p style="font-size: 24px; color: #94a3b8; max-width: 900px; line-height: 1.6;">
+        Inspired by Rick & Morty. <span class="vox-highlight">No pause. No rewind. No algorithms.</span> Just raw broadcast television beamed from across the multiverse.
       </p>
 
-      <div class="pill-stack mono">
-        <div class="tech-pill highlight">HTML5 / CSS3 Animation</div>
-        <div class="tech-pill">OpenAI Whisper Sync</div>
-        <div class="tech-pill">Headless Chrome</div>
-        <div class="tech-pill">FFmpeg Pipeline</div>
-        <div class="tech-pill highlight">Claude AI Skills</div>
+      <div class="pills-container mono">
+        <div class="motion-pill glow-pill">999 Live Channels</div>
+        <div class="motion-pill glow-pill">3D Teen Bedroom</div>
+        <div class="motion-pill">Curved CRT Phosphor Glow</div>
+        <div class="motion-pill">Procedural Audio Engine</div>
+        <div class="motion-pill glow-pill">100% Free & Open Source</div>
       </div>
     </div>
 
-    <!-- ── SCENE 3: 74+ EXPLAINER BOARDS ──────────────────── -->
+    <!-- ── SCENE 3: 3D BEDROOM SHOWCASE ───────────────────── -->
     <div class="scene" id="scene-3">
-      <div class="tag-badge mono"><span class="dot"></span>Modular Architecture</div>
-      <h2 class="headline-huge headline-gradient" style="font-size: 70px; margin-bottom: 10px;">
-        74+ Engineered Explainer Boards
+      <div class="tag-badge mono"><span class="dot"></span>First-Person Immersion</div>
+      <h2 class="headline-huge headline-gradient" style="font-size: 72px; margin-bottom: 10px;">
+        A 90s Bedroom. A Glowing CRT Tube.
       </h2>
       <p style="font-size: 22px; color: #94a3b8;">
-        Pre-built components engineered specifically for high-retention video essays.
+        Rendered in real-time 3D from a seated beanbag perspective.
       </p>
 
-      <div class="boards-grid">
-        <!-- Board 1: Bar Chart -->
-        <div class="board-card">
-          <div class="board-card-header mono">
-            <span>board_04_barchart.html</span>
-            <span style="color:#00f0ff;">+847% Growth</span>
-          </div>
-          <div class="chart-container">
-            <div class="chart-bar-group">
-              <div class="chart-bar bar-1"></div>
-              <div class="chart-label mono">2024</div>
-            </div>
-            <div class="chart-bar-group">
-              <div class="chart-bar bar-2"></div>
-              <div class="chart-label mono">2025</div>
-            </div>
-            <div class="chart-bar-group">
-              <div class="chart-bar bar-3"></div>
-              <div class="chart-label mono" style="color:#00f0ff; font-weight:700;">2026 AI</div>
-            </div>
+      <div class="room-stage-split">
+        <div class="tilted-room-frame">
+          <div class="room-image-card">
+            <img src="../docs/TVON.png" alt="3D Room Live">
           </div>
         </div>
 
-        <!-- Board 2: Venn Diagram -->
-        <div class="board-card">
-          <div class="board-card-header mono">
-            <span>board_19_venn.html</span>
-            <span style="color:#c084fc;">Intersection</span>
+        <div class="room-feature-list">
+          <div class="feature-item-row">
+            <div class="feature-icon-badge">🛋️</div>
+            <div>
+              <h4 style="font-size:20px; color:#fff; margin-bottom:4px;">Seated Beanbag View</h4>
+              <p style="font-size:15px; color:#94a3b8;">First-person perspective inside a modelled 90s bedroom with subtle look parallax.</p>
+            </div>
           </div>
-          <div class="venn-container">
-            <div class="venn-circle left">Story</div>
-            <div class="venn-circle right">Design</div>
-            <div class="venn-center-glow"></div>
-            <div style="position:relative; z-index:10; font-weight:800; font-size:16px; color:#ffffff;" class="mono">RETENTION</div>
-          </div>
-        </div>
 
-        <!-- Board 3: Node Graph -->
-        <div class="board-card">
-          <div class="board-card-header mono">
-            <span>board_32_nodes.html</span>
-            <span style="color:#38bdf8;">Graph Tree</span>
+          <div class="feature-item-row">
+            <div class="feature-icon-badge">🌌</div>
+            <div>
+              <h4 style="font-size:20px; color:#00ff88; margin-bottom:4px;">360° Drifting Night Sky</h4>
+              <p style="font-size:15px; color:#94a3b8;">Panoramic desert night sky drifting seamlessly through dual bedroom windows.</p>
+            </div>
           </div>
-          <div class="nodes-container">
-            <div class="node-item" style="top:30px; left:30px; border-color:#00f0ff; color:#00f0ff;">Raw Idea</div>
-            <div class="node-item" style="top:120px; left:180px;">AI Script</div>
-            <div class="node-item" style="top:220px; left:40px;">Whisper STT</div>
-            <div class="node-item" style="top:300px; left:170px; background:#00f0ff; color:#000; font-weight:800;">4K Export</div>
-            <svg style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none;">
-              <line x1="100" y1="50" x2="190" y2="130" stroke="#00f0ff" stroke-width="2" stroke-dasharray="4"/>
-              <line x1="220" y1="160" x2="140" y2="230" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
-              <line x1="140" y1="260" x2="210" y2="310" stroke="#00f0ff" stroke-width="2"/>
-            </svg>
+
+          <div class="feature-item-row">
+            <div class="feature-icon-badge">🖼️</div>
+            <div>
+              <h4 style="font-size:20px; color:#00f0ff; margin-bottom:4px;">30 Gallery Wall Posters</h4>
+              <p style="font-size:15px; color:#94a3b8;">Curated vintage prints hanging above the CRT that illuminate as channels flip.</p>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- ── SCENE 4: WHISPER VOICE-SYNC ───────────────────── -->
+    <!-- ── SCENE 4: 999 CHANNELS & MULTIVERSE RADAR ─────── -->
     <div class="scene" id="scene-4">
-      <div class="tag-badge mono"><span class="dot"></span>Zero Keyframing</div>
-      <h2 class="headline-huge headline-cyan" style="font-size: 76px; margin-bottom: 12px;">
-        Synced to Your Voice. Automatically.
+      <div class="tag-badge mono"><span class="dot"></span>9 Multiversal Dimensions</div>
+      <h2 class="headline-huge headline-cyan" style="font-size: 74px; margin-bottom: 10px;">
+        999 Channels. Infinite Dimensions.
       </h2>
-      <p class="serif-italic" style="font-size: 34px; color: #cbd5e1;">
-        Whisper timestamps drive the CSS timeline with millisecond precision.
+      <p class="serif-italic" style="font-size: 32px; color: #cbd5e1;">
+        Thematic channel vaults with authentic broadcast ad breaks.
       </p>
 
-      <div class="karaoke-box">
-        <div class="mono" style="font-size: 14px; color: #64748b; display:flex; justify-content:space-between;">
-          <span>AUDIO TRACK: VOICEOVER_ESSAY.WAV</span>
-          <span style="color:#00f0ff;">WHISPER AI SYNC ACTIVE</span>
-        </div>
+      <div class="radar-showcase-split">
+        <div class="crt-monitor-box">
+          <div class="live-ad-bug pixel">AD</div>
+          <div class="osd-corner-hud">
+            <div class="live-osd-ch vt323" id="live-ch-num">CH 01</div>
+            <div class="live-osd-dim vt323" id="live-ch-dim">[DIMENSION Ø-00]</div>
+            <div class="live-osd-name mono" id="live-ch-name">THE VOID</div>
+          </div>
 
-        <div class="karaoke-text" id="karaoke-display">
-          <span class="past-word">"When</span>
-          <span class="past-word">we</span>
-          <span class="past-word">analyze</span>
-          <span class="past-word">the</span>
-          <span class="active-word">SURGE</span>
-          <span>in</span>
-          <span>audience</span>
-          <span>engagement,</span>
-          <span>the</span>
-          <span>motion</span>
-          <span>graphics</span>
-          <span>trigger</span>
-          <span>instantly."</span>
-        </div>
-
-        <div class="waveform-visualizer" id="waveform-bars">
-          <!-- 32 waveform bars generated dynamically -->
-        </div>
-      </div>
-    </div>
-
-    <!-- ── SCENE 5: CREATOR SAFE-ZONE & EXPORT ─────────────── -->
-    <div class="scene" id="scene-5">
-      <div class="tag-badge mono"><span class="dot"></span>Engineered for Video Editors</div>
-      <h2 class="headline-huge headline-gradient" style="font-size: 70px; margin-bottom: 10px;">
-        Dedicated Webcam Safe-Zone
-      </h2>
-      <p style="font-size: 22px; color: #94a3b8;">
-        Every explainer board leaves the bottom-right $480 \times 336$ px area clear for your facecam.
-      </p>
-
-      <div class="studio-frame">
-        <div style="max-width: 900px;">
-          <h3 style="font-size: 36px; margin-bottom: 16px; color: #ffffff;">Key Insights of Q4 Strategy</h3>
-          <p style="font-size: 20px; color: #94a3b8; line-height: 1.6; margin-bottom: 30px;">
-            Content creators often battle graphics overlapping their webcam feed. In YouTube AI Motion Graphics, all charts, tables, and node graphs strictly adhere to the creator-safe perimeter.
-          </p>
-          <div style="display:flex; gap:20px;">
-            <div class="tech-pill mono" style="font-size:15px;">Padding: 60px Safe</div>
-            <div class="tech-pill mono" style="font-size:15px; color:#38bdf8;">FFmpeg 60fps Native</div>
-            <div class="tech-pill mono" style="font-size:15px; color:#10b981;">Clean Transparency</div>
+          <div style="margin-top:auto;">
+            <div class="mono" style="font-size:15px; color:#64748b; margin-bottom:10px;">MULTIVERSE FREQUENCIES:</div>
+            <div style="display:flex; gap:12px; flex-wrap:wrap;">
+              <span class="motion-pill mono" style="font-size:13px; padding:6px 16px; border-color:#00ff88; color:#00ff88;">CH 01 : THE VOID</span>
+              <span class="motion-pill mono" style="font-size:13px; padding:6px 16px;">CH 02 : FOOD DIMENSION</span>
+              <span class="motion-pill mono" style="font-size:13px; padding:6px 16px;">CH 03 : RETRO WAVE</span>
+              <span class="motion-pill mono" style="font-size:13px; padding:6px 16px;">CH 09 : DIMENSION X</span>
+            </div>
           </div>
         </div>
 
-        <div class="webcam-safezone mono">
-          <div class="webcam-badge">SAFE-ZONE PERIMETER</div>
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
-          <div style="font-size:16px; font-weight:700;">480 × 336 CREATOR CAM</div>
-          <div style="font-size:12px; color:#64748b;">Zero Graphic Collisions</div>
+        <div class="radar-circle-viz">
+          <div class="radar-sweep-beam"></div>
+          <div style="position:relative; z-index:10; text-align:center;">
+            <div class="mono" style="font-size:13px; letter-spacing:0.1em; color:#00ff88; margin-bottom:6px;">MULTIVERSE FREQUENCY RADAR</div>
+            <div class="vt323" style="font-size:38px; color:#ffffff;">COORDINATES: C-137.99</div>
+            <div class="mono" style="font-size:13px; color:#64748b; margin-top:6px;">69 Vault Playlists • Zero Duplicates</div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- ── SCENE 6: CALL TO ACTION ───────────────────────── -->
-    <div class="scene" id="scene-6">
-      <div class="tag-badge mono"><span class="dot"></span>100% Free & Open-Source</div>
-      <h1 class="headline-huge headline-cyan" style="font-size: 96px; margin-bottom: 10px;">
-        Ditch After Effects.
-      </h1>
-      <p class="serif-italic" style="font-size: 46px; color: #f8fafc; margin-bottom: 10px;">
-        Build motion graphics with code and AI.
+    <!-- ── SCENE 5: MOBILE NATIVE & PROCEDURAL AUDIO ──────── -->
+    <div class="scene" id="scene-5">
+      <div class="tag-badge mono"><span class="dot"></span>Analog Engineering</div>
+      <h2 class="headline-huge headline-gradient" style="font-size: 72px; margin-bottom: 10px;">
+        Designed for Mobile & Desktop
+      </h2>
+      <p style="font-size: 22px; color: #94a3b8;">
+        Full touch gesture navigation, multi-digit keyboard buffer, and procedural audio.
       </p>
 
-      <div class="cta-card">
-        <div class="mono" style="font-size: 18px; color: #94a3b8; letter-spacing: 0.05em; margin-bottom: 8px;">
-          AVAILABLE NOW ON GITHUB
-        </div>
-        <div class="mono" style="font-size: 32px; font-weight: 800; color: #ffffff;">
-          sirioberati/YouTube-AI-Motion-Graphics
-        </div>
-
-        <div class="github-badge mono">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-          ⭐ Star on GitHub
+      <div class="mobile-audio-split">
+        <div class="phone-mockups-row">
+          <div class="phone-bezel" style="--off: -15px;">
+            <img src="../docs/Mobileoff.png" alt="Mobile Off">
+          </div>
+          <div class="phone-bezel" style="--off: 15px;">
+            <img src="../docs/MobileOn.png" alt="Mobile On">
+          </div>
         </div>
 
-        <div style="display:flex; justify-content:center; gap:30px; margin-top:28px;" class="mono">
-          <span style="color:#64748b;">74 Explainer Boards</span>
-          <span style="color:#64748b;">•</span>
-          <span style="color:#64748b;">Whisper Voice Sync</span>
-          <span style="color:#64748b;">•</span>
-          <span style="color:#00f0ff;">Created by Sirio Berati</span>
+        <div class="feature-item-row" style="flex-direction:column; gap:20px; padding:32px;">
+          <div>
+            <div class="mono" style="color:#00ff88; font-size:18px; font-weight:700; margin-bottom:6px;">👆 Mobile Touch Gestures</div>
+            <p style="font-size:16px; color:#94a3b8;">Swipe left, right, up, or down in any direction on your phone to instantly channel-surf dimensions.</p>
+          </div>
+
+          <div>
+            <div class="mono" style="color:#00f0ff; font-size:18px; font-weight:700; margin-bottom:6px;">⌨️ Multi-Digit Remote Dialing</div>
+            <p style="font-size:16px; color:#94a3b8;">Type <span class="mono" style="color:#fff; background:#1e293b; padding:2px 8px; border-radius:4px;">1</span> <span class="mono" style="color:#fff; background:#1e293b; padding:2px 8px; border-radius:4px;">0</span> or <span class="mono" style="color:#fff; background:#1e293b; padding:2px 8px; border-radius:4px;">404</span> on your keyboard to tune directly to any channel in the multiverse.</p>
+          </div>
+
+          <div>
+            <div class="mono" style="color:#eab308; font-size:18px; font-weight:700; margin-bottom:6px;">🔊 Web Audio Procedural Sound</div>
+            <p style="font-size:16px; color:#94a3b8;">Real-time synthesized rising sawtooth power sweep, degauss hum, falling pop, and 320x240 analog static.</p>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Playback Scrubber -->
+    <!-- ── SCENE 6: CALL TO ACTION ────────────────────────── -->
+    <div class="scene" id="scene-6">
+      <div class="tag-badge mono"><span class="dot"></span>Live in Browser</div>
+      <h1 class="headline-huge headline-cyan" style="font-size: 96px; margin-bottom: 12px;">
+        Turn On. Tune In.
+      </h1>
+      <p class="serif-italic" style="font-size: 44px; color: #f8fafc; margin-bottom: 10px;">
+        Drop into the multiverse of InterDimentional Cable.
+      </p>
+
+      <div class="cta-card-epic">
+        <div class="mono" style="font-size: 18px; color: #94a3b8; letter-spacing: 0.08em; margin-bottom: 8px;">
+          FREE & OPEN SOURCE ON GITHUB
+        </div>
+        <div class="mono" style="font-size: 34px; font-weight: 800; color: #ffffff; margin-bottom: 20px;">
+          raunakpatil.com/InterdimentionalCable
+        </div>
+
+        <div class="main-cta-btn mono">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Watch Live in Your Browser
+        </div>
+
+        <div style="display:flex; justify-content:center; gap:36px; margin-top:30px;" class="mono">
+          <span style="color:#64748b;">github.com/raunakpatil/InterdimentionalCable</span>
+          <span style="color:#64748b;">•</span>
+          <span style="color:#00ff88;">⭐ Star on GitHub</span>
+          <span style="color:#64748b;">•</span>
+          <span style="color:#cbd5e1;">built with ❤️ by raunakpatil</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scrubber -->
     <div id="playback-bar"><div id="playback-fill"></div></div>
   </div>
 
   <script>
-    // ═══════════════════════════════════════════════════════
-    //  DETERMINISTIC TIMELINE ENGINE & CONTROLLER
-    // ═══════════════════════════════════════════════════════
-    const TOTAL_DURATION = 36.0; // 36 seconds total
+    const TOTAL_DURATION = 36.0;
     let currentTime = 0;
     let isPlaying = true;
     let lastTimestamp = null;
 
-    // Timeline Cues: [start, end, sceneId]
     const SCENES = [
       { id: "scene-1", start: 0.0, end: 5.5 },
       { id: "scene-2", start: 5.5, end: 11.5 },
-      { id: "scene-3", start: 11.5, end: 18.5 },
-      { id: "scene-4", start: 18.5, end: 25.5 },
+      { id: "scene-3", start: 11.5, end: 18.0 },
+      { id: "scene-4", start: 18.0, end: 25.5 },
       { id: "scene-5", start: 25.5, end: 31.0 },
       { id: "scene-6", start: 31.0, end: 36.0 }
     ];
 
-    // Populate waveform bars
-    const waveContainer = document.getElementById("waveform-bars");
-    for (let i = 0; i < 48; i++) {
-      const bar = document.createElement("div");
-      bar.className = "wave-bar";
-      waveContainer.appendChild(bar);
-    }
+    const DEMO_CHANNELS = [
+      { ch: "CH 01", dim: "[DIMENSION Ø-00]", name: "THE VOID" },
+      { ch: "CH 02", dim: "[DIMENSION F-34]", name: "FOOD DIMENSION" },
+      { ch: "CH 03", dim: "[DIMENSION 1984-Y]", name: "RETRO WAVE" },
+      { ch: "CH 09", dim: "[DIMENSION C-137]", name: "DIMENSION X" },
+      { ch: "CH 42", dim: "[DIMENSION Q-42]", name: "SCIENCE ZONE" }
+    ];
 
-    // Auto-scale stage to fit any screen
     function resizeStage() {
       const stage = document.getElementById("stage-viewport");
-      const scaleX = window.innerWidth / 1920;
-      const scaleY = window.innerHeight / 1080;
-      const scale = Math.min(scaleX, scaleY);
+      const scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
       stage.style.transform = `scale(${scale})`;
     }
     window.addEventListener("resize", resizeStage);
     resizeStage();
 
-    // Procedural Web Audio Sound Effects
-    let audioCtx = null;
-    function initAudio() {
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state === "suspended") audioCtx.resume();
-    }
-
-    function playImpactSound() {
-      if (!audioCtx) return;
-      const t = audioCtx.currentTime;
-      // Sub bass boom
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(140, t);
-      osc.frequency.exponentialRampToValueAtTime(35, t + 0.4);
-      gain.gain.setValueAtTime(0.4, t);
-      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start(t);
-      osc.stop(t + 0.65);
-    }
-
     let lastActiveScene = null;
 
-    // Render frame at specific timestamp
     function renderTime(t) {
       currentTime = Math.max(0, Math.min(TOTAL_DURATION, t));
 
-      // Update Scrubber
       const fill = document.getElementById("playback-fill");
-      fill.style.width = ((currentTime / TOTAL_DURATION) * 100) + "%";
+      if (fill) fill.style.width = ((currentTime / TOTAL_DURATION) * 100) + "%";
 
-      // Update HUD
       const mins = Math.floor(currentTime / 60);
       const secs = (currentTime % 60).toFixed(2);
-      document.getElementById("hud-time").innerText = 
-        String(mins).padStart(2, "0") + ":" + String(secs).padStart(5, "0");
+      const hudTime = document.getElementById("hud-time");
+      if (hudTime) hudTime.innerText = String(mins).padStart(2, "0") + ":" + String(secs).padStart(5, "0");
 
-      // Find Active Scene
       let activeItem = SCENES.find(s => currentTime >= s.start && currentTime < s.end);
       if (!activeItem && currentTime >= TOTAL_DURATION) activeItem = SCENES[SCENES.length - 1];
 
@@ -899,35 +852,26 @@
           const el = document.getElementById(s.id);
           if (el) el.classList.toggle("active", s.id === activeItem.id);
         });
-        if (lastActiveScene !== null) playImpactSound();
         lastActiveScene = activeItem.id;
       }
 
-      // Dynamic animations per scene
-      if (activeItem.id === "scene-3") {
-        // Animate chart growth
-        const progress = (currentTime - activeItem.start) / (activeItem.end - activeItem.start);
-        const bar3 = document.querySelector(".chart-bar.bar-3");
-        if (bar3) bar3.style.height = Math.min(95, Math.floor(progress * 130)) + "%";
-      }
-
-      if (activeItem.id === "scene-4") {
-        // Dynamic waveform animation
-        const bars = document.querySelectorAll(".wave-bar");
-        bars.forEach((bar, idx) => {
-          const waveHeight = Math.sin((currentTime * 12) + (idx * 0.4)) * 30 + 35;
-          bar.style.height = waveHeight + "px";
-          bar.classList.toggle("active-wave", waveHeight > 45);
-        });
+      if (activeItem && activeItem.id === "scene-4") {
+        const sceneProgress = (currentTime - activeItem.start) / (activeItem.end - activeItem.start);
+        const chIdx = Math.floor(sceneProgress * DEMO_CHANNELS.length) % DEMO_CHANNELS.length;
+        const curCh = DEMO_CHANNELS[chIdx];
+        const numEl = document.getElementById("live-ch-num");
+        const dimEl = document.getElementById("live-ch-dim");
+        const nameEl = document.getElementById("live-ch-name");
+        if (numEl) numEl.innerText = curCh.ch;
+        if (dimEl) dimEl.innerText = curCh.dim;
+        if (nameEl) nameEl.innerText = curCh.name;
       }
     }
 
-    // Public hook for Playwright frame capture
     window.seekTo = function(seconds) {
       renderTime(seconds);
     };
 
-    // Real-time animation loop
     function loop(timestamp) {
       if (!lastTimestamp) lastTimestamp = timestamp;
       const delta = (timestamp - lastTimestamp) / 1000;
@@ -936,7 +880,7 @@
       if (isPlaying) {
         currentTime += delta;
         if (currentTime >= TOTAL_DURATION) {
-          currentTime = 0; // Loop seamlessly
+          currentTime = 0;
         }
         renderTime(currentTime);
       }
@@ -944,9 +888,7 @@
     }
     requestAnimationFrame(loop);
 
-    // Click anywhere to toggle play/pause & audio
     window.addEventListener("click", () => {
-      initAudio();
       isPlaying = !isPlaying;
     });
   </script>
