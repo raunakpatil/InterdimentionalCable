@@ -718,6 +718,46 @@ function setupEnvironment(renderer) {
   }
 }
 
+// ── CRT glow ─────────────────────────────────────────────
+// The YouTube frame is cross-origin, so its pixels can't be sampled.
+// Fake what a picture does to a dark room instead: a new colour and
+// brightness at every "cut", slow drift within the shot and a faint
+// flicker. While static is on screen the glow turns grey-white and crackles.
+const TV_GLOW_PALETTE = [
+  0x8fb4ff, 0xffd2a0, 0xa8ffcf, 0xff9fb8, 0xc6a8ff,
+  0xfff1d6, 0x7fd6ff, 0xffb070, 0xb8c8d8, 0xe0ffa8,
+];
+const TV_GLOW = {
+  color: new THREE.Color(0x9fc8ff),
+  target: new THREE.Color(0x9fc8ff),
+  level: 0.8,
+  nextCut: 0,
+};
+
+function updateTvGlow(now, delta) {
+  const staticOn = document
+    .getElementById("static-overlay")
+    ?.classList.contains("active");
+  if (staticOn) {
+    TV_GLOW.target.setRGB(0.86, 0.9, 0.95);
+    TV_GLOW.nextCut = now;
+    TV_GLOW.color.lerp(TV_GLOW.target, Math.min(1, delta * 10));
+    return 0.55 + Math.random() * 0.35;
+  }
+  if (now >= TV_GLOW.nextCut) {
+    const hex = TV_GLOW_PALETTE[Math.floor(Math.random() * TV_GLOW_PALETTE.length)];
+    TV_GLOW.target.set(hex);
+    TV_GLOW.level = 0.45 + Math.random() * 0.75;
+    TV_GLOW.nextCut = now + 1800 + Math.random() * 4500;
+  }
+  TV_GLOW.color.lerp(TV_GLOW.target, Math.min(1, delta * 6));
+  if (STATE.reducedMotion) return TV_GLOW.level;
+  const t = now / 1000;
+  const drift = Math.sin(t * 1.3) * 0.08 + Math.sin(t * 3.7) * 0.05;
+  const flicker = (Math.random() - 0.5) * 0.05;
+  return Math.max(0.2, TV_GLOW.level + drift + flicker);
+}
+
 function setupLights(room, screenObject) {
   const hemisphere = new THREE.HemisphereLight(0xa9c8ff, 0x24140c, CONFIG.hemisphereIntensity);
   STATE.scene.add(hemisphere);
@@ -1470,9 +1510,11 @@ function tick(now) {
   }
 
   if (STATE.tvLight) {
+    const glow = tvOn ? updateTvGlow(now, delta) : 0;
     STATE.tvLight.intensity +=
-      ((tvOn ? CONFIG.tvLightOnIntensity : 0) - STATE.tvLight.intensity) *
-      Math.min(1, delta * 5);
+      (CONFIG.tvLightOnIntensity * glow - STATE.tvLight.intensity) *
+      Math.min(1, delta * 12);
+    STATE.tvLight.color.lerp(TV_GLOW.color, Math.min(1, delta * 10));
   }
 
   // TV on = room lights off. The CRT becomes the only light source, with
